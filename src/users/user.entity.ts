@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Post } from '../posts/post.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -24,7 +25,9 @@ export class User {
   @Column()
   avatar: string;
 
-  @Column()
+  @Column({
+    type: 'text',
+  })
   bio: string;
 
   @Column({
@@ -33,4 +36,7 @@ export class User {
     default: UserRole.USER,
   })
   role: UserRole;
+
+  @OneToMany((type) => Post, (post) => post.user)
+  posts: Post[];
 }

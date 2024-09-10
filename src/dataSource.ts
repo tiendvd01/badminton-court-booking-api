@@ -6,5 +6,6 @@ export default new DataSource({
   url: process.env.DATABASE_URL,
   type: 'mysql',
   migrationsTableName: '_migrations',
-  migrations: [__dirname + '/migrations/*.ts'],
+  migrations: ['src/database/migrations/*.ts'],
+  entities: ['src/**/*.entity.ts'],
 });
