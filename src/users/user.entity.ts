@@ -1,5 +1,13 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Post } from '../posts/post.entity';
+import { Comment } from '../comments/comment.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -37,6 +45,12 @@ export class User {
   })
   role: UserRole;
 
-  @OneToMany((type) => Post, (post) => post.user)
+  @OneToMany(() => Post, (post) => post.user)
   posts: Post[];
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
+
+  @ManyToMany(() => Post, (post) => post.usersWhoSaved)
+  savedPosts: Post[];
 }

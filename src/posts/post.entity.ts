@@ -1,5 +1,15 @@
+import { Comment } from '../comments/comment.entity';
+import { Tag } from '../tags/tag.entity';
 import { User } from '../users/user.entity';
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Post {
@@ -25,10 +35,21 @@ export class Post {
   slug: string;
 
   @Column({
-    type: "text"
+    type: 'text',
   })
   reactions: string;
 
-  @ManyToOne((type) => User, (user) => user.posts)
+  @ManyToOne(() => User, (user) => user.posts)
   user: User;
+
+  @ManyToMany(() => Tag, (tag) => tag.posts)
+  @JoinTable()
+  tags: Tag[];
+
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
+
+  @ManyToMany(() => User, (user) => user.savedPosts)
+  @JoinTable()
+  usersWhoSaved: User[];
 }
