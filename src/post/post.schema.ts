@@ -1,4 +1,4 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { User } from '../user/user.schema';
 
@@ -28,10 +28,15 @@ export class Post {
     },
   })
   reactions: {
-    like: number;
-    unicorn: number;
-    exploding_head: number;
+    like: number,
+    unicorn: number,
+    exploding_head: number,
+    raise_hand: number,
+    fire: number,
   };
+
+  @Prop()
+  tags: string[];
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -39,3 +44,5 @@ export class Post {
   })
   user: User;
 }
+
+export const PostSchema = SchemaFactory.createForClass(Post);
