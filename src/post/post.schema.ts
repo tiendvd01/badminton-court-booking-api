@@ -1,4 +1,4 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { User } from '../user/user.schema';
 
@@ -18,21 +18,21 @@ export class Post {
   })
   slug: string;
 
-  @Prop({
-    raw: {
+  @Prop(
+    raw({
       like: { type: Number, default: 0 },
       unicorn: { type: Number, default: 0 },
       exploding_head: { type: Number, default: 0 },
       raise_hand: { type: Number, default: 0 },
       fire: { type: Number, default: 0 },
-    },
-  })
+    }),
+  )
   reactions: {
-    like: number,
-    unicorn: number,
-    exploding_head: number,
-    raise_hand: number,
-    fire: number,
+    like: number;
+    unicorn: number;
+    exploding_head: number;
+    raise_hand: number;
+    fire: number;
   };
 
   @Prop()

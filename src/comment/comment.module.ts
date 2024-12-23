@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CommentSchema } from './comment.schema';
+import { Comment, CommentSchema } from './comment.schema';
 
 @Module({
   imports: [
