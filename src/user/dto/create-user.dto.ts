@@ -5,5 +5,4 @@ export class CreateUserDto {
     email: string;
     avatarUrl?: string;
     bio?: string;
-    role?: "user" | "admin";
 }
