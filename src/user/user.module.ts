@@ -4,15 +4,32 @@ import { User, UserSchema } from './user.schema';
 import { SavedPost, SavedPostSchema } from './savedPost.schema';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import bcrypt from 'bcrypt';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },
-      { name: SavedPost.name, schema: SavedPostSchema },
+    MongooseModule.forFeatureAsync([
+      {
+        name: User.name,
+        useFactory: () => {
+          const schema = UserSchema;
+          schema.pre('save', function () {
+            bcrypt.hash(this.password, 10, (err, hash) => {
+              this.password = hash;
+            });
+          });
+          return UserSchema;
+        },
+      },
+      {
+        name: SavedPost.name,
+        useFactory: () => {
+          return SavedPostSchema;
+        },
+      },
     ]),
   ],
   controllers: [UserController],
-  providers: [UserService]
+  providers: [UserService],
 })
 export class UserModule {}
