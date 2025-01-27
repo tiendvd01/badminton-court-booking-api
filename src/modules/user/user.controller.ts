@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -10,15 +11,15 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
 import { ApiTags } from '@nestjs/swagger';
+import { LoginDto } from './dto/login.dto';
 
 @ApiTags("users")
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @HttpCode(HttpStatus.CREATED)
   @Post('/register')
-  async register(@Body() createUserDto: CreateUserDto, @Res() res) {
+  async register(@Body() createUserDto: CreateUserDto) {
     const existingUser = await this.userService.findUserByEmail(
       createUserDto.email,
     );
@@ -31,9 +32,26 @@ export class UserController {
     };
   }
 
-  @Post("login")
-  async login() {
-    
+  @Post("/login")
+  async login(@Body() loginUserDto: LoginDto) {
+    const existingUser = await this.userService.findUserByEmail(loginUserDto.email);
+    if (!existingUser) {
+      return {
+        message: "User not found",
+      }
+    }
+    return {
+      message: ""
+    }
   }
 
+  @Get('/')
+  @HttpCode(HttpStatus.CREATED)
+  async getUser() {
+    // throw new BadRequestException("User not found")
+    return {
+      username: "User 1234",
+      password: '1234'
+    }
+  }
 }
