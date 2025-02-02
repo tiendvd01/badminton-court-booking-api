@@ -37,11 +37,21 @@ export class UserController {
     const existingUser = await this.userService.findUserByEmail(loginUserDto.email);
     if (!existingUser) {
       return {
-        message: "User not found",
+        message: "Invalid email or password",
       }
     }
+
+    const isPasswordMatched = await this.userService.comparePassword(loginUserDto.password, existingUser.password);
+    if (!isPasswordMatched) {
+      return {
+        message: "Invalid email or password",
+      }
+    }
+
+    const accessToken = this.userService.generateAccessToken(existingUser);
     return {
-      message: ""
+      message: "Login successful",
+      accessToken,
     }
   }
 

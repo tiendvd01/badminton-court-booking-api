@@ -31,6 +31,11 @@ export class User {
     default: 'user',
   })
   role: 'user' | 'admin';
+
+  @Prop({
+    default: 0,
+  })
+  tokenVersion: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
