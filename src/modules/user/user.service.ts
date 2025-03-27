@@ -1,25 +1,47 @@
 import { Injectable } from '@nestjs/common';
-import { User } from './user.schema';
+import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectRepository(User) private userRepository: Repository<User>,
+  ) {}
 
-  createUser(data: CreateUserDto) {
-    const newUser = new this.userModel({
+  createAdmin(data: CreateUserDto) {
+    const newAdmin = this.userRepository.create({
       ...data,
-      role: 'user',
+      role: "admin",
     });
-    return newUser.save();
+    return this.userRepository.save(newAdmin);
+  }
+
+  createOwner(data: CreateUserDto) {
+    const newOwner = this.userRepository.create({
+      ...data,
+      role: "owner",
+    });
+    return this.userRepository.save(newOwner);
+  }
+
+  createCustomer(data: CreateUserDto) {
+    const newUser = this.userRepository.create({
+      ...data,
+      role: 'customer'
+    });
+    return this.userRepository.save(newUser);
   }
 
   findUserByEmail(email: string) {
-    return this.userModel.findOne({ email });
+    return this.userRepository.findOne({
+      where: {
+        email,
+      },
+    });
   }
 
   generateAccessToken(user: User): string {
@@ -27,10 +49,10 @@ export class UserService {
       email: user.email,
       name: user.name,
       role: user.role,
-      tokenVersion: user.tokenVersion,
+      tokenVersion: user.token_version,
     };
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
-      issuer: "community-blog-api",
+      issuer: 'badminton-booking',
     });
     return accessToken;
   }

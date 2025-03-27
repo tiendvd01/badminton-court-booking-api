@@ -26,7 +26,7 @@ export class UserController {
     if (existingUser) {
       throw new BadRequestException('Email already existed');
     }
-    await this.userService.createUser(createUserDto);
+    await this.userService.createCustomer(createUserDto);
     return {
       message: 'User created successfully',
     };

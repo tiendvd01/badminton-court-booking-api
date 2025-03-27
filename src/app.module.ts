@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
-import { UserModule, CommentModule, PostModule } from './modules';
+import { UserModule } from './modules';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import databaseConfig from 'configs/database';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    MongooseModule.forRoot(process.env.MONGO_URI),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRoot(databaseConfig),
     UserModule,
-    PostModule,
-    CommentModule,
   ],
   controllers: [],
   providers: [],
