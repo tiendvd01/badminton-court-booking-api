@@ -3,8 +3,8 @@ import { Booking } from "./booking.entity";
 
 @Entity()
 export class Payment {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
+    @PrimaryGeneratedColumn()
+    id: number;
 
     @Column()
     booking_id: string;

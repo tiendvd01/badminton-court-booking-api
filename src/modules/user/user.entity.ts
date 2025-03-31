@@ -11,10 +11,12 @@ import * as bcrypt from 'bcrypt';
 
 export type UserRole = 'admin' | 'owner' | 'customer'
 
-@Entity()
+@Entity({
+  name: "users"
+})
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
   name?: string;

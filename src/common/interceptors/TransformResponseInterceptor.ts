@@ -3,7 +3,6 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
-  HttpStatus,
 } from '@nestjs/common';
 import { CustomResponse } from 'interfaces/common';
 import { Observable } from 'rxjs';

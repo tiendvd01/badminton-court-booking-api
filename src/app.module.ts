@@ -1,18 +1,31 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './modules';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import databaseConfig from 'configs/database';
+import { typeOrmConfig } from 'configs/database';
+import { JwtModule } from '@nestjs/jwt';
+
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRoot(typeOrmConfig),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get('JWT_SECRET'),
+        signOptions: {
+          issuer: "Tiến ĐVD"
+        },
+        global: true,
+      }),
     }),
-    TypeOrmModule.forRoot(databaseConfig),
     UserModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+
+}

@@ -3,8 +3,8 @@ import { Location } from "./location.entity";
 
 @Entity()
 export class Court {
-    @PrimaryGeneratedColumn("uuid") // Changed to UUID
-    id: string;
+    @PrimaryGeneratedColumn() // Changed to UUID
+    id: number;
 
     @Column()
     location_id: string;

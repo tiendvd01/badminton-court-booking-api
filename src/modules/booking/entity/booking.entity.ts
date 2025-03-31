@@ -5,8 +5,8 @@ import { Payment } from "./payment.entity";
 
 @Entity()
 export class Booking {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
+    @PrimaryGeneratedColumn()
+    id: number;
 
     @Column()
     customer_id: string;

@@ -13,7 +13,7 @@ import { UserService } from './user.service';
 import { ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 
-@ApiTags("users")
+@ApiTags('users')
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
@@ -32,36 +32,52 @@ export class UserController {
     };
   }
 
-  @Post("/login")
-  async login(@Body() loginUserDto: LoginDto) {
-    const existingUser = await this.userService.findUserByEmail(loginUserDto.email);
-    if (!existingUser) {
-      return {
-        message: "Invalid email or password",
-      }
+  @Post('/createAdmin')
+  async registerAdmin(@Body() createUserDto: CreateUserDto) {
+    const existingUser = await this.userService.findUserByEmail(
+      createUserDto.email,
+    );
+    if (existingUser) {
+      throw new BadRequestException('Email already existed');
     }
 
-    const isPasswordMatched = await this.userService.comparePassword(loginUserDto.password, existingUser.password);
+    await this.userService.createAdmin(createUserDto);
+    return {
+      message: 'User create successfully',
+    };
+  }
+
+  @Post('/login')
+  async login(@Body() loginUserDto: LoginDto) {
+    const existingUser = await this.userService.findUserByEmail(
+      loginUserDto.email,
+    );
+    if (!existingUser) {
+      return {
+        message: 'Invalid email or password',
+      };
+    }
+
+    const isPasswordMatched = await this.userService.comparePassword(
+      loginUserDto.password,
+      existingUser.password,
+    );
     if (!isPasswordMatched) {
       return {
-        message: "Invalid email or password",
-      }
+        message: 'Invalid email or password',
+      };
     }
 
     const accessToken = this.userService.generateAccessToken(existingUser);
     return {
-      message: "Login successful",
+      message: 'Login successful',
       accessToken,
-    }
+    };
   }
 
   @Get('/')
   @HttpCode(HttpStatus.CREATED)
-  async getUser() {
-    // throw new BadRequestException("User not found")
-    return {
-      username: "User 1234",
-      password: '1234'
-    }
+  async getUserInfo() {
+    const userInfo = await this.getUserInfo()
   }
 }
