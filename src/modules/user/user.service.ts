@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class UserService {
@@ -63,6 +64,17 @@ export class UserService {
     });
   }
 
+  async updateTokenVersion(userId: number): Promise<User> {
+    const newTokenVersion = crypto.randomUUID();
+    await this.userRepository.update(userId, {
+      token_version: newTokenVersion,
+    });
+    const user = await this.userRepository.findOneBy({
+      id: userId,
+    });
+    return user;
+  }
+
   generateAccessToken(user: User): string {
     const payload = {
       email: user.email,
@@ -70,6 +82,7 @@ export class UserService {
       role: user.role,
       tokenVersion: user.token_version,
     };
+
     const accessToken = this.jwtService.sign(payload);
     return accessToken;
   }

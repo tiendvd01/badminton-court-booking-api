@@ -67,8 +67,8 @@ export class UserController {
         message: 'Invalid email or password',
       };
     }
-
-    const accessToken = this.userService.generateAccessToken(existingUser);
+    const updatedUser = await this.userService.updateTokenVersion(existingUser.id);
+    const accessToken = this.userService.generateAccessToken(updatedUser);
     return {
       message: 'Login successful',
       accessToken,

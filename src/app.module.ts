@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './modules';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from 'configs/database';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 
 @Module({
@@ -18,8 +18,8 @@ import { JwtModule } from '@nestjs/jwt';
         signOptions: {
           issuer: "Tiến ĐVD"
         },
-        global: true,
       }),
+      global: true,
     }),
     UserModule,
   ],

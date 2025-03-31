@@ -48,8 +48,9 @@ export class InitUserTable1743321421802 implements MigrationInterface {
                     },
                     {
                         name: "token_version",
-                        type: "int",
-                        default: 0,
+                        type: "varchar",
+                        length: "36",
+                        isNullable: true,
                     },
                     {
                         name: "created_at",
@@ -71,5 +72,4 @@ export class InitUserTable1743321421802 implements MigrationInterface {
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.dropTable("users");
     }
-
 }

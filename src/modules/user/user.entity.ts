@@ -41,7 +41,7 @@ export class User {
   avatar_url?: string;
 
   @Column({ default: 0 })
-  token_version: number;
+  token_version: string;
 
   @CreateDateColumn()
   created_at: Date;
