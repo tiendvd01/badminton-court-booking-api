@@ -8,8 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-
-export type UserRole = 'admin' | 'owner' | 'customer'
+import { UserRole } from 'enums/user-role.enum';
 
 @Entity({
   name: "users"

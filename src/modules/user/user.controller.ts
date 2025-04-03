@@ -7,11 +7,15 @@ import {
   HttpStatus,
   Post,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
+import { Roles } from 'common/decorators/roles.decorator';
+import { AuthGuard } from 'common/guards/auth.guard';
+import { RolesGuard } from 'common/guards/roles.guard';
 
 @ApiTags('users')
 @Controller('users')
@@ -76,8 +80,11 @@ export class UserController {
   }
 
   @Get('/')
-  @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth()
+  @Roles('admin')
+  @UseGuards(AuthGuard, RolesGuard)
   async getUserInfo() {
     const userInfo = await this.getUserInfo()
+    return 'tienchillchill';
   }
 }
