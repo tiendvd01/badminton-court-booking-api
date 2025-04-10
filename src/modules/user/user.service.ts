@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
+import { UserRole } from 'enums/user-role.enum';
 
 @Injectable()
 export class UserService {
@@ -14,6 +16,7 @@ export class UserService {
     private jwtService: JwtService,
   ) {}
 
+  // Create methods
   createAdmin(data: CreateUserDto) {
     const newAdmin = this.userRepository.create({
       ...data,
@@ -38,41 +41,58 @@ export class UserService {
     return this.userRepository.save(newUser);
   }
 
+  // Read methods
   findUserByEmail(email: string) {
     return this.userRepository.findOne({
-      where: {
-        email,
-      },
+      where: { email },
     });
   }
 
-  getUserInfo(email: string) {
+  findUserById(id: number) {
     return this.userRepository.findOne({
-      where: {
-        email,
-      },
-      select: [
-        'id',
-        'name',
-        'role',
-        'phone',
-        'updated_at',
-        'created_at',
-        'avatar_url',
-        'email',
-      ],
+      where: { id },
     });
   }
 
+  findAllUsers(role?: UserRole) {
+    return this.userRepository.find({
+      where: role ? { role: role } : {},
+      select: ['id', 'name', 'email', 'phone', 'role', 'avatar_url', 'created_at', 'updated_at'],
+    });
+  }
+
+  // Update methods
+  async updateUser(id: number, data: UpdateUserDto) {
+    const user = await this.findUserById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (data.password) {
+      data.password = await bcrypt.hash(data.password, 10);
+    }
+
+    await this.userRepository.update(id, data);
+    return this.findUserById(id);
+  }
+
+  // Delete methods
+  async deleteUser(id: number) {
+    const user = await this.findUserById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    await this.userRepository.delete(id);
+    return { message: 'User deleted successfully' };
+  }
+
+  // Auth methods
   async updateTokenVersion(userId: number): Promise<User> {
     const newTokenVersion = crypto.randomUUID();
     await this.userRepository.update(userId, {
       token_version: newTokenVersion,
     });
-    const user = await this.userRepository.findOneBy({
-      id: userId,
-    });
-    return user;
+    return this.userRepository.findOneBy({ id: userId });
   }
 
   generateAccessToken(user: User): string {
@@ -82,13 +102,10 @@ export class UserService {
       role: user.role,
       tokenVersion: user.token_version,
     };
-
-    const accessToken = this.jwtService.sign(payload);
-    return accessToken;
+    return this.jwtService.sign(payload);
   }
 
   async comparePassword(password: string, hashedPassword: string) {
-    const isPasswordMatched = await bcrypt.compare(password, hashedPassword);
-    return isPasswordMatched;
+    return bcrypt.compare(password, hashedPassword);
   }
 }

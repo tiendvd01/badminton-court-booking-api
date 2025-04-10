@@ -4,6 +4,7 @@ import { UserModule } from './modules';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from 'configs/database';
 import { JwtModule, JwtService } from '@nestjs/jwt';
+import { CourtModule } from '@modules/court/court.module';
 
 
 @Module({
@@ -22,6 +23,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
       global: true,
     }),
     UserModule,
+    CourtModule
   ],
   controllers: [],
   providers: [],

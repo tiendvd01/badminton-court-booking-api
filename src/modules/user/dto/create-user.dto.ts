@@ -1,10 +1,5 @@
 import { IsEmail, IsString, IsOptional, MinLength } from 'class-validator';
 
-export enum UserRole {
-  USER = 'user',
-  ADMIN = 'admin',
-}
-
 export class CreateUserDto {
     @IsString()
     @IsOptional()

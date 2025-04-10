@@ -1,27 +1,30 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
-import { Location } from "./location.entity";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Location } from './location.entity';
+import { CourtPrice } from './court-price.entity';
 
-@Entity()
+@Entity('courts')
 export class Court {
-    @PrimaryGeneratedColumn() // Changed to UUID
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    location_id: string;
+  @Column()
+  name: string;
 
-    @Column()
-    name: string;
+  @Column()
+  location_id: number;
 
-    @Column()
-    type: string;
+  @Column({ nullable: true })
+  description?: string;
 
-    @CreateDateColumn() // Added for created_at
-    created_at: Date;
+  @Column({ nullable: true })
+  image_url?: string;
 
-    @UpdateDateColumn() // Added for updated_at
-    updated_at: Date;
+  @Column({ default: true })
+  is_active: boolean;
 
-    @ManyToOne(() => Location)
-    @JoinColumn({ name: "location_id" })
-    location: Location;
+  @ManyToOne(() => Location, (location) => location.courts)
+  location: Location;
+
+  @OneToMany(() => CourtPrice, (price) => price.court)
+  prices: CourtPrice[];
 }
