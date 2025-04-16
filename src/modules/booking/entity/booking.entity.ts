@@ -3,13 +3,13 @@ import { User } from "../../user/user.entity";
 import { Court } from "../../court/entity/court.entity";
 import { Payment } from "./payment.entity";
 
-@Entity()
+@Entity('bookings')
 export class Booking {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
-    customer_id: string;
+    customer_id: number;
 
     @Column()
     court_id: string;

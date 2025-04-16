@@ -1,6 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Court } from './court.entity';
-
+import { User } from '@modules/user/user.entity'; 
 @Entity('locations')
 export class Location {
     @PrimaryGeneratedColumn()
@@ -17,6 +17,13 @@ export class Location {
 
     @Column({ nullable: true })
     image_url?: string;
+
+    @Column()
+    owner_id: number;
+
+    @ManyToOne(type => User)
+    @JoinColumn({ name: "owner_id" })
+    owner: User;
 
     @OneToMany(() => Court, (court) => court.location)
     courts: Court[];

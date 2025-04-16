@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Location } from './location.entity';
 import { CourtPrice } from './court-price.entity';
 
@@ -22,7 +22,8 @@ export class Court {
   @Column({ default: true })
   is_active: boolean;
 
-  @ManyToOne(() => Location, (location) => location.courts)
+  @ManyToOne(type => Location)
+  @JoinColumn({ name: "location_id" })
   location: Location;
 
   @OneToMany(() => CourtPrice, (price) => price.court)

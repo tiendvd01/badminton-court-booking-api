@@ -1,13 +1,13 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Booking } from "./booking.entity";
 
-@Entity()
+@Entity('payments')
 export class Payment {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
-    booking_id: string;
+    booking_id: number;
 
     @Column({ type: "decimal", precision: 10, scale: 2 })
     amount: number;
