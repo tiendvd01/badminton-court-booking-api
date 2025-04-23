@@ -1,7 +1,7 @@
+import { User } from "@modules/user/user.entity";
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
-import { CourtOwner } from "./court-owner.entity";
 
-@Entity()
+@Entity("owner_payment_info")
 export class OwnerPaymentInfo {
     @PrimaryGeneratedColumn()
     id: number;
@@ -18,7 +18,7 @@ export class OwnerPaymentInfo {
     @Column()
     owner_id: string;
 
-    @ManyToOne(() => CourtOwner)
+    @ManyToOne(() => User)
     @JoinColumn({ name: "owner_id" })
-    Owner: CourtOwner;
+    owner: User;
 }
