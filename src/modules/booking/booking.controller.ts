@@ -59,7 +59,6 @@ export class BookingController {
     return this.bookingService.deleteBooking(+id);
   }
 
-  // Payment endpoints
   @Post('payments')
   @ApiBearerAuth()
   @Roles('admin', 'customer')

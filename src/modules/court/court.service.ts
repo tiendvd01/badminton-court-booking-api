@@ -19,7 +19,6 @@ export class CourtService {
     private courtPriceRepository: Repository<CourtPrice>,
   ) {}
 
-  // Location CRUD
   async createLocation(data: CreateLocationDto) {
     const location = this.locationRepository.create(data);
     return this.locationRepository.save(location);
@@ -54,7 +53,6 @@ export class CourtService {
     return { message: 'Location deleted successfully' };
   }
 
-  // Court CRUD
   async createCourt(data: CreateCourtDto) {
     const location = await this.findLocationById(data.location_id);
     const court = this.courtRepository.create({
@@ -98,7 +96,6 @@ export class CourtService {
     return { message: 'Court deleted successfully' };
   }
 
-  // Court Price CRUD
   async createCourtPrice(data: CreateCourtPriceDto) {
     const court = await this.findCourtById(data.court_id);
     const price = this.courtPriceRepository.create({

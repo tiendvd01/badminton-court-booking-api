@@ -10,10 +10,10 @@ export class CourtPrice {
   court_id: number;
 
   @Column()
-  start_time: string; // Format: "HH:mm"
+  start_time: string; 
 
   @Column()
-  end_time: string; // Format: "HH:mm"
+  end_time: string; 
 
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;

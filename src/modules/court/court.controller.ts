@@ -99,7 +99,6 @@ export class CourtController {
     return this.courtService.deleteCourt(+id);
   }
 
-  // Court Price endpoints
   @Post('prices')
   @ApiBearerAuth()
   @Roles('admin', 'owner')
