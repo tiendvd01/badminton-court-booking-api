@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { Booking } from "./entity/booking.entity";
+import { Payment } from "./entity/payment.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
@@ -8,6 +9,8 @@ export class BookingService {
     constructor(
         @InjectRepository(Booking)
         private bookingRepository: Repository<Booking>,
+        @InjectRepository(Payment)
+        private paymentRepository: Repository<Payment>,
     ) {}
 
     // Create a new booking
@@ -45,6 +48,40 @@ export class BookingService {
         const result = await this.bookingRepository.delete(id);
         if (result.affected === 0) {
             throw new NotFoundException(`Booking with ID ${id} not found`);
+        }
+    }
+
+    // Payment CRUD
+    async createPayment(paymentData: Partial<Payment>): Promise<Payment> {
+        const payment = this.paymentRepository.create(paymentData);
+        return this.paymentRepository.save(payment);
+    }
+
+    async findAllPayments(): Promise<Payment[]> {
+        return this.paymentRepository.find({ relations: ['booking'] });
+    }
+
+    async findPaymentById(id: number): Promise<Payment> {
+        const payment = await this.paymentRepository.findOne({
+            where: { id },
+            relations: ['booking'],
+        });
+        if (!payment) {
+            throw new NotFoundException(`Payment with ID ${id} not found`);
+        }
+        return payment;
+    }
+
+    async updatePayment(id: number, updateData: Partial<Payment>): Promise<Payment> {
+        const payment = await this.findPaymentById(id);
+        Object.assign(payment, updateData);
+        return this.paymentRepository.save(payment);
+    }
+
+    async deletePayment(id: number): Promise<void> {
+        const result = await this.paymentRepository.delete(id);
+        if (result.affected === 0) {
+            throw new NotFoundException(`Payment with ID ${id} not found`);
         }
     }
 }
