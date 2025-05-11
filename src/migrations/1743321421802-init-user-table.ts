@@ -1,5 +1,6 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 import { Table } from "typeorm";
+import * as bcrypt from "bcrypt";
 
 export class InitUserTable1743321421802 implements MigrationInterface {
 
@@ -67,6 +68,13 @@ export class InitUserTable1743321421802 implements MigrationInterface {
             }),
             true
         );
+        
+        // Create default admin user
+        const hashedPassword = await bcrypt.hash('admin123', 10);
+        await queryRunner.query(`
+            INSERT INTO users (name, email, password, role)
+            VALUES ('Admin User', 'admin@gmail.com', '${hashedPassword}', 'admin')
+        `);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

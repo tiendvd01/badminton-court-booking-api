@@ -20,9 +20,11 @@ export class TransformResponseInterceptor<T>
     const statusCode = response.statusCode;
     return next.handle().pipe(
       map((data) => {
+        const message = data?.message ?? 'Success';
+        delete data.message;
         return {
           statusCode: statusCode,
-          message: data?.message ?? 'Success',
+          message: message,
           data: data,
         };
       }),

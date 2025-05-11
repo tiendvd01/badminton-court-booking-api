@@ -3,22 +3,35 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
   Post,
   Query,
+  Request,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { Roles } from 'common/decorators/roles.decorator';
 import { AuthGuard } from 'common/guards/auth.guard';
 import { RolesGuard } from 'common/guards/roles.guard';
 import { UserRole } from 'enums/user-role.enum';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as fs from 'fs';
+import { cloudinaryStorage } from 'configs/cloudinary';
+
+// Ensure uploads directory exists
+const uploadDir = './uploads';
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 @ApiTags('users')
 @Controller('users')
@@ -58,9 +71,11 @@ export class UserController {
 
     const updatedUser = await this.userService.updateTokenVersion(existingUser.id);
     const accessToken = this.userService.generateAccessToken(updatedUser);
+    const { password, ...userWithoutPassword } = updatedUser;
     return {
       message: 'Login successful',
-      accessToken,
+      token: accessToken,
+      user: userWithoutPassword,
     };
   }
 
@@ -100,6 +115,62 @@ export class UserController {
     };
   }
 
+  @Patch('/:id')
+  @ApiBearerAuth()
+  @Roles('admin')
+  @UseGuards(AuthGuard, RolesGuard)
+  async updateAdmin(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    const user = await this.userService.findUserById(+id);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    return this.userService.updateUser(+id, updateUserDto);
+  }
+
+  @Patch('/owner/:id')
+  @ApiBearerAuth()
+  @Roles('owner')
+  @UseGuards(AuthGuard, RolesGuard)
+  async updateOwner(
+    @Param('id') id: string, 
+    @Body() updateUserDto: UpdateUserDto,
+    @Request() req
+  ) {
+    const user = await this.userService.findUserById(+id);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    
+    // If not admin, check if user is updating their own profile
+    if (req.user.email !== user.email) {
+      throw new ForbiddenException('Owners can only update their own profile');
+    }
+    
+    return this.userService.updateUser(+id, updateUserDto);
+  }
+
+  @Patch('/customer/:id')
+  @ApiBearerAuth()
+  @Roles('customer')
+  @UseGuards(AuthGuard, RolesGuard)
+  async updateCustomer(
+    @Param('id') id: string, 
+    @Body() updateUserDto: UpdateUserDto,
+    @Request() req
+  ) {
+    const user = await this.userService.findUserById(+id);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    
+    // If not admin, check if user is updating their own profile
+    if (req.user.email !== user.email) {
+      throw new ForbiddenException('Customers can only update their own profile');
+    }
+    
+    return this.userService.updateUser(+id, updateUserDto);
+  }
+
   @Get()
   @ApiBearerAuth()
   @Roles('admin')
@@ -116,19 +187,63 @@ export class UserController {
     return this.userService.findUserById(+id);
   }
 
-  @Patch(':id')
-  @ApiBearerAuth()
-  @Roles('admin')
-  @UseGuards(AuthGuard, RolesGuard)
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.updateUser(+id, updateUserDto);
-  }
-
   @Delete(':id')
   @ApiBearerAuth()
   @Roles('admin')
   @UseGuards(AuthGuard, RolesGuard)
   async remove(@Param('id') id: string) {
     return this.userService.deleteUser(+id);
+  }
+
+  @Post('upload-avatar')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Upload user avatar' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        avatar: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Avatar uploaded successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      fileFilter: (req, file, cb) => {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+          return cb(new BadRequestException('Only image files are allowed!'), false);
+        }
+        cb(null, true);
+      },
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB
+      },
+    }),
+  )
+  async uploadAvatar(@UploadedFile() file: Express.Multer.File, @Request() req) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    try {
+      const avatarUrl = file.path;
+      console.log("avatarUrl", avatarUrl)
+      
+      // Update user's avatar_url
+      await this.userService.updateUser(req.user.id, { avatar_url: avatarUrl });
+      
+      return {
+        message: 'Avatar uploaded successfully',
+        avatar_url: avatarUrl,
+      };
+    } catch (error) {
+      throw new BadRequestException(`Failed to upload avatar: ${error.message}`);
+    }
   }
 }
