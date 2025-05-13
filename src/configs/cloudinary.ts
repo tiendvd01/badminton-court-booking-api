@@ -1,5 +1,8 @@
+import * as dotenv from 'dotenv';
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
+
+dotenv.config();
 
 // Configure Cloudinary
 cloudinary.config({
@@ -13,7 +16,7 @@ const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     public_id: (req, file) => {
-      return `avatars/${file.originalname}_${new Date().toISOString()}`;
+      return `avatars/${Date.now()}_${encodeURIComponent(file.originalname)}`;
     },
   },
 });

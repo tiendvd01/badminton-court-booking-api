@@ -25,7 +25,6 @@ import { RolesGuard } from 'common/guards/roles.guard';
 import { UserRole } from 'enums/user-role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
-import { cloudinaryStorage } from 'configs/cloudinary';
 
 // Ensure uploads directory exists
 const uploadDir = './uploads';
@@ -127,48 +126,35 @@ export class UserController {
     return this.userService.updateUser(+id, updateUserDto);
   }
 
-  @Patch('/owner/:id')
+  @Patch('/profile/edit')
   @ApiBearerAuth()
-  @Roles('owner')
-  @UseGuards(AuthGuard, RolesGuard)
-  async updateOwner(
-    @Param('id') id: string, 
+  @UseGuards(AuthGuard)
+  async updateProfile(
     @Body() updateUserDto: UpdateUserDto,
     @Request() req
   ) {
-    const user = await this.userService.findUserById(+id);
+    const user = await this.userService.findUserById(+req.user.id);
     if (!user) {
       throw new BadRequestException('User not found');
     }
-    
-    // If not admin, check if user is updating their own profile
+
     if (req.user.email !== user.email) {
       throw new ForbiddenException('Owners can only update their own profile');
     }
+
+    const result = await this.userService.updateUser(+req.user.id, updateUserDto);
     
-    return this.userService.updateUser(+id, updateUserDto);
+    return result;
   }
 
-  @Patch('/customer/:id')
+  @Get('/profile')
   @ApiBearerAuth()
-  @Roles('customer')
-  @UseGuards(AuthGuard, RolesGuard)
-  async updateCustomer(
-    @Param('id') id: string, 
-    @Body() updateUserDto: UpdateUserDto,
-    @Request() req
-  ) {
-    const user = await this.userService.findUserById(+id);
-    if (!user) {
-      throw new BadRequestException('User not found');
-    }
-    
-    // If not admin, check if user is updating their own profile
-    if (req.user.email !== user.email) {
-      throw new ForbiddenException('Customers can only update their own profile');
-    }
-    
-    return this.userService.updateUser(+id, updateUserDto);
+  @UseGuards(AuthGuard)
+  async getProfile(@Request() req) {
+    const userId = req.user.id;
+    const user = await this.userService.findUserById(userId);
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   @Get()
@@ -233,7 +219,6 @@ export class UserController {
 
     try {
       const avatarUrl = file.path;
-      console.log("avatarUrl", avatarUrl)
       
       // Update user's avatar_url
       await this.userService.updateUser(req.user.id, { avatar_url: avatarUrl });

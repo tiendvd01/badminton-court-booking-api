@@ -68,12 +68,10 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    if (data.password) {
-      data.password = await bcrypt.hash(data.password, 10);
-    }
-
-    await this.userRepository.update(id, data);
-    return this.findUserById(id);
+    return await this.userRepository.save({
+      id: user.id,
+      ...data,
+    });
   }
 
   // Delete methods

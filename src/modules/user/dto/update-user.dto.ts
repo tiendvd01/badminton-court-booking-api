@@ -17,12 +17,6 @@ export class UpdateUserDto {
     @IsOptional()
     phone?: string;
 
-    @ApiPropertyOptional({ description: 'User password (min 6 characters)' })
-    @IsString()
-    @MinLength(6)
-    @IsOptional()
-    password?: string;
-
     @ApiPropertyOptional({ description: 'URL to user avatar image' })
     @IsString()
     @IsOptional()

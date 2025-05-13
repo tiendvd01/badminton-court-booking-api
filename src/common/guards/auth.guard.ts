@@ -1,10 +1,11 @@
+import { UserService } from '@modules/user/user.service';
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService, private userService: UserService) {}
 
   async canActivate(
     context: ExecutionContext,
@@ -16,7 +17,15 @@ export class AuthGuard implements CanActivate {
     }
     try {
       const payload = await this.jwtService.verifyAsync(token);
-      request['user'] = payload;
+
+      const user = await this.userService.findUserById(payload.id);
+      if (!user) {
+        throw new UnauthorizedException();
+      }
+      if (payload.tokenVersion !== user.token_version) {
+        throw new UnauthorizedException();
+      }
+      request['user'] = user;
     } catch {
       throw new UnauthorizedException();
     }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -6,6 +6,7 @@ import { User } from './user.entity';
 import { MulterModule } from '@nestjs/platform-express';
 import { cloudinaryStorage } from 'configs/cloudinary';
 
+@Global()
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
@@ -15,5 +16,6 @@ import { cloudinaryStorage } from 'configs/cloudinary';
   ],
   controllers: [UserController],
   providers: [UserService],
+  exports: [UserService],
 })
 export class UserModule {}
