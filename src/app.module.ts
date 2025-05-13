@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './modules';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { typeOrmConfig } from 'configs/database';
+import { typeOrmConfig } from 'db/database';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { CourtModule } from '@modules/court/court.module';
 import { BookingModule } from '@modules/booking/booking.module';
