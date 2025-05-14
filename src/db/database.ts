@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import { join } from 'path';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { runSeeders, SeederOptions } from 'typeorm-extension';
-import { CreateUser1747185494888 } from './seeds/1747185494888-create_user';
+import { CreateAdminUser1747185494888 } from './seeds/1747185494888-create_admin_user';
 
 dotenv.config();
 
@@ -18,7 +18,7 @@ const baseConfig: DataSourceOptions & SeederOptions = {
     entities: [join(__dirname, '../modules/**/entity/*.entity{.ts,.js}')],
     migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
     synchronize: false,
-    seeds: [CreateUser1747185494888],
+    seeds: [CreateAdminUser1747185494888],
     factories: [join(__dirname, 'factories', '*.factory{.ts,.js}')],
 };
 
