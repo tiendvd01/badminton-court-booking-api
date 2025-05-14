@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Court } from './court.entity';
-import { User } from '@modules/user/user.entity'; 
+import { User } from '@modules/user/entity/user.entity'; 
 @Entity('locations')
 export class Location {
     @PrimaryGeneratedColumn()

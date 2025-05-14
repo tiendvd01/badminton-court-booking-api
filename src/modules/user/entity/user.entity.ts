@@ -39,6 +39,9 @@ export class User {
   @Column({ nullable: true })
   avatar_url?: string;
 
+  @Column({ nullable: true })
+  address?: string;
+
   @Column({ default: 0 })
   token_version: string;
 

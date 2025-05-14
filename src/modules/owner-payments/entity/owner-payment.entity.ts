@@ -1,8 +1,8 @@
-import { User } from "@modules/user/user.entity";
+import { User } from "@modules/user/entity/user.entity";
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
 
-@Entity("owner_payment_info")
-export class OwnerPaymentInfo {
+@Entity("owner_payments")
+export class OwnerPayment {
     @PrimaryGeneratedColumn()
     id: number;
 

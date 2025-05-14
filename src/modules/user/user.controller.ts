@@ -157,7 +157,7 @@ export class UserController {
     return userWithoutPassword;
   }
 
-  @Get()
+  @Get('/')
   @ApiBearerAuth()
   @Roles('admin')
   @UseGuards(AuthGuard, RolesGuard)

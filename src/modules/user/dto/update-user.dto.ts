@@ -17,6 +17,11 @@ export class UpdateUserDto {
     @IsOptional()
     phone?: string;
 
+    @ApiPropertyOptional({ description: 'User address' })
+    @IsString()
+    @IsOptional()
+    address?: string;
+
     @ApiPropertyOptional({ description: 'URL to user avatar image' })
     @IsString()
     @IsOptional()

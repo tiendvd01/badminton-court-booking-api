@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Param, Body } from "@nestjs/common";
 import { OwnerPaymentService } from "./owner-payment.service";
-import { OwnerPaymentInfo } from "./entity/owner-payment.entity";
+import { OwnerPayment } from "./entity/owner-payment.entity";
 import { ApiTags } from "@nestjs/swagger";
 
 @ApiTags('owner-payments')
@@ -9,25 +9,25 @@ export class OwnerPaymentController {
     constructor(private readonly ownerPaymentService: OwnerPaymentService) {}
 
     @Post()
-    async create(@Body() data: Partial<OwnerPaymentInfo>): Promise<OwnerPaymentInfo> {
+    async create(@Body() data: Partial<OwnerPayment>): Promise<OwnerPayment> {
         return this.ownerPaymentService.create(data);
     }
 
     @Get()
-    async findAll(): Promise<OwnerPaymentInfo[]> {
+    async findAll(): Promise<OwnerPayment[]> {
         return this.ownerPaymentService.findAll();
     }
 
     @Get(":id")
-    async findOne(@Param("id") id: number): Promise<OwnerPaymentInfo> {
+    async findOne(@Param("id") id: number): Promise<OwnerPayment> {
         return this.ownerPaymentService.findOne(id);
     }
 
     @Put(":id")
     async update(
         @Param("id") id: number,
-        @Body() data: Partial<OwnerPaymentInfo>
-    ): Promise<OwnerPaymentInfo> {
+        @Body() data: Partial<OwnerPayment>
+    ): Promise<OwnerPayment> {
         return this.ownerPaymentService.update(id, data);
     }
 
