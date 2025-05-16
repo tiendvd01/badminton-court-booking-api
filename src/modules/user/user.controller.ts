@@ -70,6 +70,7 @@ export class UserController {
 
     const updatedUser = await this.userService.updateTokenVersion(existingUser.id);
     const accessToken = this.userService.generateAccessToken(updatedUser);
+    console.log("🚀 ~ UserController ~ login ~ accessToken:", accessToken)
     const { password, ...userWithoutPassword } = updatedUser;
     return {
       message: 'Login successful',

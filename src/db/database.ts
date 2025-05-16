@@ -20,6 +20,7 @@ const baseConfig: DataSourceOptions & SeederOptions = {
     synchronize: false,
     seeds: [CreateAdminUser1747185494888],
     factories: [join(__dirname, 'factories', '*.factory{.ts,.js}')],
+    cache: false,
 };
 
 export const databaseConfig = new DataSource(baseConfig);
