@@ -7,6 +7,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { CourtModule } from '@modules/court/court.module';
 import { BookingModule } from '@modules/booking/booking.module';
 import { OwnerPaymentModule } from './modules/owner-payments/owner-payment.module';
+import { UploadModule } from '@modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { OwnerPaymentModule } from './modules/owner-payments/owner-payment.modul
     CourtModule,
     BookingModule,
     OwnerPaymentModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [],

@@ -14,9 +14,4 @@ export class CreateLocationDto {
   @IsString()
   @IsOptional()
   description?: string;
-
-  @ApiPropertyOptional({ description: 'URL to location image' })
-  @IsUrl()
-  @IsOptional()
-  image_url?: string;
 } 

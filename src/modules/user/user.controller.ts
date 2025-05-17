@@ -24,13 +24,7 @@ import { AuthGuard } from 'common/guards/auth.guard';
 import { RolesGuard } from 'common/guards/roles.guard';
 import { UserRole } from 'enums/user-role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as fs from 'fs';
-
-// Ensure uploads directory exists
-const uploadDir = './uploads';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+import { ImageFileInterceptor } from 'common/interceptors/ImageFileInterceptor';
 
 @ApiTags('users')
 @Controller('users')
@@ -201,17 +195,7 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Avatar uploaded successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @UseInterceptors(
-    FileInterceptor('avatar', {
-      fileFilter: (req, file, cb) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-          return cb(new BadRequestException('Only image files are allowed!'), false);
-        }
-        cb(null, true);
-      },
-      limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB
-      },
-    }),
+    ImageFileInterceptor('avatar')
   )
   async uploadAvatar(@UploadedFile() file: Express.Multer.File, @Request() req) {
     if (!file) {

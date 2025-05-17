@@ -32,12 +32,6 @@ export class InitCourtTables1743321421803 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name: 'image_url',
-            type: 'varchar',
-            length: '255',
-            isNullable: true,
-          },
-          {
             name: 'owner_id',
             type: 'int',
             isNullable: false,

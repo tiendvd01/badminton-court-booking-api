@@ -8,15 +8,20 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+  UploadedFiles,
 } from '@nestjs/common';
 import { CourtService } from './court.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { CreateCourtDto } from './dto/create-court.dto';
 import { CreateCourtPriceDto } from './dto/create-court-price.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
 import { Roles } from 'common/decorators/roles.decorator';
 import { AuthGuard } from 'common/guards/auth.guard';
 import { RolesGuard } from 'common/guards/roles.guard';
+import { ImageFileInterceptor } from 'common/interceptors/ImageFileInterceptor';
 
 @ApiTags('courts')
 @Controller('courts')
@@ -136,5 +141,32 @@ export class CourtController {
   @UseGuards(AuthGuard, RolesGuard)
   async deleteCourtPrice(@Param('id') id: string) {
     return this.courtService.deleteCourtPrice(+id);
+  }
+
+  @Post('locations/:id/images/add')
+  @ApiBearerAuth()
+  @Roles('admin', 'owner')
+  @UseGuards(AuthGuard, RolesGuard)
+  async addLocationImages(
+    @Param('location_id') location_id: string,
+    @Body() imageUrls: string[]
+  ) {
+    if (!imageUrls || imageUrls.length === 0) {
+      throw new BadRequestException('No images uploaded');
+    }
+    return this.courtService.addManyLocationImages(+location_id, imageUrls);
+  }
+
+  @Get('locations/:id/images')
+  async getLocationImages(@Param('id') id: string) {
+    return this.courtService.getLocationImages(+id);
+  }
+
+  @Delete('locations/images/:id')
+  @ApiBearerAuth()
+  @Roles('admin', 'owner')
+  @UseGuards(AuthGuard, RolesGuard)
+  async deleteLocationImage(@Param('id') id: string) {
+    return this.courtService.deleteLocationImage(+id);
   }
 } 

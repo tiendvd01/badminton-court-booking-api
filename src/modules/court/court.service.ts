@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Location } from './entity/location.entity';
 import { Court } from './entity/court.entity';
 import { CourtPrice } from './entity/court-price.entity';
+import { LocationImage } from './entity/location-image.entity';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { CreateCourtDto } from './dto/create-court.dto';
 import { CreateCourtPriceDto } from './dto/create-court-price.dto';
@@ -17,6 +18,8 @@ export class CourtService {
     private courtRepository: Repository<Court>,
     @InjectRepository(CourtPrice)
     private courtPriceRepository: Repository<CourtPrice>,
+    @InjectRepository(LocationImage)
+    private locationImageRepository: Repository<LocationImage>,
   ) {}
 
   async createLocation(data: CreateLocationDto) {
@@ -137,5 +140,42 @@ export class CourtService {
     await this.findCourtPriceById(id);
     await this.courtPriceRepository.delete(id);
     return { message: 'Court price deleted successfully' };
+  }
+
+  async addManyLocationImages(locationId: number, imageUrls: string[]) {
+    // Verify location exists
+    const location = await this.findLocationById(locationId);
+    
+    const locationImages = imageUrls.map((imageUrl) => {
+      return this.locationImageRepository.create({
+        location_id: locationId,
+        image_url: imageUrl,
+        location,
+      });
+    });
+    
+    await this.locationImageRepository.save(locationImages);
+  }
+
+  async getLocationImages(locationId: number) {
+    // Verify location exists
+    await this.findLocationById(locationId);
+    
+    return this.locationImageRepository.find({
+      where: { location_id: locationId },
+    });
+  }
+
+  async deleteLocationImage(id: number) {
+    const image = await this.locationImageRepository.findOne({
+      where: { id },
+    });
+    
+    if (!image) {
+      throw new NotFoundException('Location image not found');
+    }
+    
+    await this.locationImageRepository.delete(id);
+    return { message: 'Location image deleted successfully' };
   }
 } 

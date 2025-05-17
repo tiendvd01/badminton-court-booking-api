@@ -15,9 +15,6 @@ export class Location {
     @Column({ nullable: true })
     description?: string;
 
-    @Column({ nullable: true })
-    image_url?: string;
-
     @Column()
     owner_id: number;
 
