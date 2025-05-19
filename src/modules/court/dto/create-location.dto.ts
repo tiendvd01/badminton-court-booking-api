@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsUrl } from 'class-validator';
+import { IsString, IsOptional, IsUrl, IsNumber } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateLocationDto {
@@ -14,4 +14,8 @@ export class CreateLocationDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @ApiProperty({ description: 'Location owner ID' })
+  @IsNumber()
+  owner_id: number;
 } 

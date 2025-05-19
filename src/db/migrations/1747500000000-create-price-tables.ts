@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner, Table, TableForeignKey, TableIndex } from 'typeorm';
 
-export class InitCourtTables1743321421803 implements MigrationInterface {
+export class CreatePriceTables1747500000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Create locations table
+    // Create price_tables table
     await queryRunner.createTable(
       new Table({
-        name: 'locations',
+        name: 'price_tables',
         columns: [
           {
             name: 'id',
@@ -13,18 +13,6 @@ export class InitCourtTables1743321421803 implements MigrationInterface {
             isPrimary: true,
             isGenerated: true,
             generationStrategy: 'increment',
-          },
-          {
-            name: 'name',
-            type: 'varchar',
-            length: '255',
-            isNullable: false,
-          },
-          {
-            name: 'address',
-            type: 'varchar',
-            length: '255',
-            isNullable: false,
           },
           {
             name: 'description',
@@ -52,10 +40,10 @@ export class InitCourtTables1743321421803 implements MigrationInterface {
       true,
     );
 
-    // Create courts table
+    // Create prices table
     await queryRunner.createTable(
       new Table({
-        name: 'courts',
+        name: 'prices',
         columns: [
           {
             name: 'id',
@@ -65,31 +53,26 @@ export class InitCourtTables1743321421803 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
-            name: 'name',
-            type: 'varchar',
-            length: '255',
+            name: 'start_time',
+            type: 'time',
             isNullable: false,
           },
           {
-            name: 'location_id',
+            name: 'end_time',
+            type: 'time',
+            isNullable: false,
+          },
+          {
+            name: 'price',
+            type: 'decimal',
+            precision: 10,
+            scale: 2,
+            isNullable: false,
+          },
+          {
+            name: 'price_table_id',
             type: 'int',
             isNullable: false,
-          },
-          {
-            name: 'description',
-            type: 'text',
-            isNullable: true,
-          },
-          {
-            name: 'image_url',
-            type: 'varchar',
-            length: '255',
-            isNullable: true,
-          },
-          {
-            name: 'is_active',
-            type: 'boolean',
-            default: true,
           },
           {
             name: 'created_at',
@@ -106,9 +89,10 @@ export class InitCourtTables1743321421803 implements MigrationInterface {
       }),
       true,
     );
+
     // Add foreign key constraints
     await queryRunner.createForeignKey(
-      'locations',
+      'price_tables',
       new TableForeignKey({
         columnNames: ['owner_id'],
         referencedColumnNames: ['id'],
@@ -118,30 +102,39 @@ export class InitCourtTables1743321421803 implements MigrationInterface {
     );
 
     await queryRunner.createForeignKey(
-      'courts',
+      'prices',
       new TableForeignKey({
-        columnNames: ['location_id'],
+        columnNames: ['price_table_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'locations',
+        referencedTableName: 'price_tables',
         onDelete: 'CASCADE',
       }),
     );
 
     // Add indexes for better query performance
     await queryRunner.createIndex(
-      'locations',
+      'price_tables',
       new TableIndex({
-        name: 'IDX_LOCATION_OWNER_ID',
+        name: 'IDX_PRICE_TABLE_OWNER_ID',
         columnNames: ['owner_id'],
         isUnique: false,
       }),
     );
 
     await queryRunner.createIndex(
-      'courts',
+      'prices',
       new TableIndex({
-        name: 'IDX_COURT_LOCATION_ID',
-        columnNames: ['location_id'],
+        name: 'IDX_PRICE_TABLE_ID',
+        columnNames: ['price_table_id'],
+        isUnique: false,
+      }),
+    );
+
+    await queryRunner.createIndex(
+      'prices',
+      new TableIndex({
+        name: 'IDX_PRICE_TIME_RANGE',
+        columnNames: ['start_time', 'end_time'],
         isUnique: false,
       }),
     );
@@ -149,7 +142,7 @@ export class InitCourtTables1743321421803 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Drop tables in reverse order
-    await queryRunner.dropTable('courts');
-    await queryRunner.dropTable('locations');
+    await queryRunner.dropTable('prices');
+    await queryRunner.dropTable('price_tables');
   }
-} 
+}

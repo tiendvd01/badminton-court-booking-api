@@ -8,20 +8,24 @@ import {
   Post,
   Query,
   UseGuards,
-  UseInterceptors,
-  UploadedFile,
   BadRequestException,
-  UploadedFiles,
+  Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { CourtService } from './court.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { CreateCourtDto } from './dto/create-court.dto';
-import { CreateCourtPriceDto } from './dto/create-court-price.dto';
-import { ApiBearerAuth, ApiTags, ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiConsumes,
+  ApiBody,
+  ApiOperation,
+} from '@nestjs/swagger';
 import { Roles } from 'common/decorators/roles.decorator';
 import { AuthGuard } from 'common/guards/auth.guard';
 import { RolesGuard } from 'common/guards/roles.guard';
-import { ImageFileInterceptor } from 'common/interceptors/ImageFileInterceptor';
+import { Request } from 'express';
 
 @ApiTags('courts')
 @Controller('courts')
@@ -33,7 +37,12 @@ export class CourtController {
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
-  async createLocation(@Body() data: CreateLocationDto) {
+  async createLocation(@Req() req: Request, @Body() data: CreateLocationDto) {
+    if (req.user.role == 'owner' && req.user.id != data.owner_id) {
+      throw new ForbiddenException(
+        'You are not allowed to create location for this owner',
+      );
+    }
     return this.courtService.createLocation(data);
   }
 
@@ -52,9 +61,16 @@ export class CourtController {
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
   async updateLocation(
+    @Req() req: Request,
     @Param('id') id: string,
     @Body() data: Partial<CreateLocationDto>,
   ) {
+    const location = await this.courtService.findLocationById(+id);
+    if (req.user.role == 'owner' && req.user.id != location.owner_id) {
+      throw new ForbiddenException(
+        'You are not allowed to update this location',
+      );
+    }
     return this.courtService.updateLocation(+id, data);
   }
 
@@ -62,7 +78,13 @@ export class CourtController {
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteLocation(@Param('id') id: string) {
+  async deleteLocation(@Req() req: Request, @Param('id') id: string) {
+    const location = await this.courtService.findLocationById(+id);
+    if (req.user.role == 'owner' && req.user.id != location.owner_id) {
+      throw new ForbiddenException(
+        'You are not allowed to create location for this owner',
+      );
+    }
     return this.courtService.deleteLocation(+id);
   }
 
@@ -71,13 +93,27 @@ export class CourtController {
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
-  async createCourt(@Body() data: CreateCourtDto) {
+  async createCourt(@Req() req: Request, @Body() data: CreateCourtDto) {
+    const location = await this.courtService.findLocationById(data.location_id);
+
+    if (!location) {
+      throw new BadRequestException('Location not found');
+    }
+
+    if (req.user.role == 'owner' && req.user.id != location.owner_id) {
+      throw new ForbiddenException(
+        'You are not allowed to create court for this location',
+      );
+    }
+
     return this.courtService.createCourt(data);
   }
 
   @Get()
   async findAllCourts(@Query('locationId') locationId?: string) {
-    return this.courtService.findAllCourts(locationId ? +locationId : undefined);
+    return this.courtService.findAllCourts(
+      locationId ? +locationId : undefined,
+    );
   }
 
   @Get(':id')
@@ -90,9 +126,22 @@ export class CourtController {
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
   async updateCourt(
+    @Req() req: Request,
     @Param('id') id: string,
-    @Body() data: Partial<CreateCourtDto>,
+    @Body() data: Partial<Omit<CreateCourtDto, 'location_id'>>,
   ) {
+    const location = await this.courtService.findLocationById(+id);
+
+    if (!location) {
+      throw new BadRequestException('Location not found');
+    }
+
+    if (req.user.role == 'owner' && req.user.id != location.owner_id) {
+      throw new ForbiddenException(
+        'You are not allowed to update court for this location',
+      );
+    }
+
     return this.courtService.updateCourt(+id, data);
   }
 
@@ -100,47 +149,19 @@ export class CourtController {
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteCourt(@Param('id') id: string) {
+  async deleteCourt(@Req() req: Request, @Param('id') id: string) {
+    const location = await this.courtService.findLocationById(+id);
+
+    if (!location) {
+      throw new BadRequestException('Location not found');
+    }
+
+    if (req.user.role == 'owner' && req.user.id != location.owner_id) {
+      throw new ForbiddenException(
+        'You are not allowed to update court for this location',
+      );
+    }
     return this.courtService.deleteCourt(+id);
-  }
-
-  @Post('prices')
-  @ApiBearerAuth()
-  @Roles('admin', 'owner')
-  @UseGuards(AuthGuard, RolesGuard)
-  async createCourtPrice(@Body() data: CreateCourtPriceDto) {
-    return this.courtService.createCourtPrice(data);
-  }
-
-  @Get('prices')
-  async findAllCourtPrices(@Query('courtId') courtId?: string) {
-    return this.courtService.findAllCourtPrices(
-      courtId ? +courtId : undefined,
-    );
-  }
-
-  @Get('prices/:id')
-  async findCourtPriceById(@Param('id') id: string) {
-    return this.courtService.findCourtPriceById(+id);
-  }
-
-  @Patch('prices/:id')
-  @ApiBearerAuth()
-  @Roles('admin', 'owner')
-  @UseGuards(AuthGuard, RolesGuard)
-  async updateCourtPrice(
-    @Param('id') id: string,
-    @Body() data: Partial<CreateCourtPriceDto>,
-  ) {
-    return this.courtService.updateCourtPrice(+id, data);
-  }
-
-  @Delete('prices/:id')
-  @ApiBearerAuth()
-  @Roles('admin', 'owner')
-  @UseGuards(AuthGuard, RolesGuard)
-  async deleteCourtPrice(@Param('id') id: string) {
-    return this.courtService.deleteCourtPrice(+id);
   }
 
   @Post('locations/:id/images/add')
@@ -148,13 +169,13 @@ export class CourtController {
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
   async addLocationImages(
-    @Param('location_id') location_id: string,
-    @Body() imageUrls: string[]
+    @Param('id') id: string,
+    @Body() imageUrls: string[],
   ) {
     if (!imageUrls || imageUrls.length === 0) {
       throw new BadRequestException('No images uploaded');
     }
-    return this.courtService.addManyLocationImages(+location_id, imageUrls);
+    return this.courtService.addManyLocationImages(+id, imageUrls);
   }
 
   @Get('locations/:id/images')
@@ -169,4 +190,4 @@ export class CourtController {
   async deleteLocationImage(@Param('id') id: string) {
     return this.courtService.deleteLocationImage(+id);
   }
-} 
+}

@@ -1,6 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Location } from './location.entity';
-import { CourtPrice } from './court-price.entity';
+import { PriceTable } from '@modules/price-table/entity/price-table.entity';
 
 @Entity('courts')
 export class Court {
@@ -26,6 +26,10 @@ export class Court {
   @JoinColumn({ name: "location_id" })
   location: Location;
 
-  @OneToMany(() => CourtPrice, (price) => price.court)
-  prices: CourtPrice[];
+  @Column()
+  price_id: number;
+
+  @ManyToOne(() => PriceTable, priceTable => priceTable.courts)
+  @JoinColumn({ name: 'price_id' })
+  priceTable: PriceTable;
 }

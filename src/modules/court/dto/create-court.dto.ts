@@ -24,4 +24,9 @@ export class CreateCourtDto {
   @IsBoolean()
   @IsOptional()
   is_active?: boolean;
+
+  @ApiProperty({ description: 'Price table ID apply for this court' })
+  @IsNumber()
+  @IsOptional()
+  price_table_id?: number;
 } 
