@@ -27,9 +27,9 @@ export class Court {
   location: Location;
 
   @Column()
-  price_id: number;
+  price_table_id: number;
 
   @ManyToOne(() => PriceTable, priceTable => priceTable.courts)
-  @JoinColumn({ name: 'price_id' })
+  @JoinColumn({ name: 'price_table_id' })
   priceTable: PriceTable;
 }

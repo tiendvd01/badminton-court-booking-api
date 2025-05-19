@@ -8,6 +8,7 @@ import { CourtModule } from '@modules/court/court.module';
 import { BookingModule } from '@modules/booking/booking.module';
 import { OwnerPaymentModule } from './modules/owner-payments/owner-payment.module';
 import { UploadModule } from '@modules/upload/upload.module';
+import { PriceTableModule } from '@modules/price-table/price-table.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { UploadModule } from '@modules/upload/upload.module';
     BookingModule,
     OwnerPaymentModule,
     UploadModule,
+    PriceTableModule,
   ],
   controllers: [],
   providers: [],

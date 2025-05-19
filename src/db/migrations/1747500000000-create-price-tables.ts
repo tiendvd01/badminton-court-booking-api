@@ -15,6 +15,12 @@ export class CreatePriceTables1747500000000 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
+            name: 'name',
+            type: 'varchar',
+            length: '255',
+            isNullable: false,
+          },
+          {
             name: 'description',
             type: 'text',
             isNullable: true,

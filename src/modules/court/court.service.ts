@@ -18,8 +18,12 @@ export class CourtService {
     private locationImageRepository: Repository<LocationImage>,
   ) {}
 
-  async createLocation(data: CreateLocationDto) {
-    const location = this.locationRepository.create(data);
+  async createLocation(locationData: CreateLocationDto, courtData: CreateCourtDto[] = []) {
+    const location = this.locationRepository.create({
+      ...locationData,
+      courts: courtData.map((court) => this.courtRepository.create(court)),
+    });
+
     return this.locationRepository.save(location);
   }
 

@@ -37,13 +37,13 @@ export class CourtController {
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
-  async createLocation(@Req() req: Request, @Body() data: CreateLocationDto) {
-    if (req.user.role == 'owner' && req.user.id != data.owner_id) {
+  async createLocation(@Req() req: Request, @Body() data: { locationData: CreateLocationDto, courtData: CreateCourtDto[] }) {
+    if (req.user.role == 'owner' && req.user.id != data.locationData.owner_id) {
       throw new ForbiddenException(
         'You are not allowed to create location for this owner',
       );
     }
-    return this.courtService.createLocation(data);
+    return this.courtService.createLocation(data.locationData, data.courtData);
   }
 
   @Get('locations')

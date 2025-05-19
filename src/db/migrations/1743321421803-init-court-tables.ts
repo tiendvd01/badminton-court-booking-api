@@ -92,6 +92,11 @@ export class InitCourtTables1743321421803 implements MigrationInterface {
             default: true,
           },
           {
+            name: 'price_table_id',
+            type: 'int',
+            isNullable: false,
+          },
+          {
             name: 'created_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
