@@ -15,11 +15,6 @@ export class CreateCourtDto {
   @IsOptional()
   description?: string;
 
-  @ApiPropertyOptional({ description: 'URL to court image' })
-  @IsUrl()
-  @IsOptional()
-  image_url?: string;
-
   @ApiPropertyOptional({ description: 'Court active status', default: true })
   @IsBoolean()
   @IsOptional()

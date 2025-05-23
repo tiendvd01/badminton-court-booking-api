@@ -13,6 +13,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  Req,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -23,7 +24,6 @@ import { Roles } from 'common/decorators/roles.decorator';
 import { AuthGuard } from 'common/guards/auth.guard';
 import { RolesGuard } from 'common/guards/roles.guard';
 import { UserRole } from 'enums/user-role.enum';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageFileInterceptor } from 'common/interceptors/ImageFileInterceptor';
 
 @ApiTags('users')
@@ -64,7 +64,6 @@ export class UserController {
 
     const updatedUser = await this.userService.updateTokenVersion(existingUser.id);
     const accessToken = this.userService.generateAccessToken(updatedUser);
-    console.log("🚀 ~ UserController ~ login ~ accessToken:", accessToken)
     const { password, ...userWithoutPassword } = updatedUser;
     return {
       message: 'Login successful',
@@ -172,7 +171,10 @@ export class UserController {
   @ApiBearerAuth()
   @Roles('admin')
   @UseGuards(AuthGuard, RolesGuard)
-  async remove(@Param('id') id: string) {
+  async remove(@Request() req, @Param('id') id: string) {
+    if(req.user.id == id) {
+      throw new BadRequestException("Cannot remove your self")
+    }
     return this.userService.deleteUser(+id);
   }
 

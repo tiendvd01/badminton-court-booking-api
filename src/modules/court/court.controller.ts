@@ -17,10 +17,7 @@ import { CreateLocationDto } from './dto/create-location.dto';
 import { CreateCourtDto } from './dto/create-court.dto';
 import {
   ApiBearerAuth,
-  ApiTags,
-  ApiConsumes,
-  ApiBody,
-  ApiOperation,
+  ApiTags
 } from '@nestjs/swagger';
 import { Roles } from 'common/decorators/roles.decorator';
 import { AuthGuard } from 'common/guards/auth.guard';

@@ -1,8 +1,13 @@
 
 import { User } from '@modules/user/entity/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Price } from './price.entity';
 import { Court } from '@modules/court/entity/court.entity';
+
+export interface Price {
+  start_time: string;
+  end_time: string;
+  price: number;
+}
 
 @Entity('price_tables')
 export class PriceTable {
@@ -22,11 +27,13 @@ export class PriceTable {
   @JoinColumn({ name: 'owner_id' })
   owner: User;
 
-  @OneToMany(() => Price, price => price.priceTable)
+  @Column({
+    type: "json",
+    nullable: true,
+  })
   prices: Price[];
 
-  @ManyToOne(() => Court)
-  @JoinColumn({ name: 'court_id' })
+  @OneToMany(() => Court, court => court.priceTable)
   courts: Court[];
 }
 

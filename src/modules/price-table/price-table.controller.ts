@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { PriceTableService } from './price-table.service';
 import { CreatePriceTableDto } from './dto/create-price-table.dto';
-import { CreatePriceDto } from './dto/create-price.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'common/decorators/roles.decorator';
 import { AuthGuard } from 'common/guards/auth.guard';
@@ -85,70 +84,5 @@ export class PriceTableController {
     }
     
     return this.priceTableService.deletePriceTable(+id);
-  }
-
-  // Price endpoints
-  @Post('prices')
-  @ApiBearerAuth()
-  @Roles('admin', 'owner')
-  @UseGuards(AuthGuard, RolesGuard)
-  async createPrice(@Req() req: Request, @Body() data: CreatePriceDto) {
-    const priceTable = await this.priceTableService.findPriceTableById(data.price_table_id);
-    
-    if (req.user.role === 'owner' && req.user.id !== priceTable.owner_id) {
-      throw new ForbiddenException(
-        'You are not allowed to create prices for this price table',
-      );
-    }
-    
-    return this.priceTableService.createPrice(data);
-  }
-
-  @Get('prices')
-  async findAllPrices(@Query('priceTableId') priceTableId?: string) {
-    return this.priceTableService.findAllPrices(
-      priceTableId ? +priceTableId : undefined,
-    );
-  }
-
-  @Get('prices/:id')
-  async findPriceById(@Param('id') id: string) {
-    return this.priceTableService.findPriceById(+id);
-  }
-
-  @Patch('prices/:id')
-  @ApiBearerAuth()
-  @Roles('admin', 'owner')
-  @UseGuards(AuthGuard, RolesGuard)
-  async updatePrice(
-    @Req() req: Request,
-    @Param('id') id: string,
-    @Body() data: Partial<CreatePriceDto>,
-  ) {
-    const price = await this.priceTableService.findPriceById(+id);
-    
-    if (req.user.role === 'owner' && req.user.id !== price.priceTable.owner_id) {
-      throw new ForbiddenException(
-        'You are not allowed to update this price',
-      );
-    }
-    
-    return this.priceTableService.updatePrice(+id, data);
-  }
-
-  @Delete('prices/:id')
-  @ApiBearerAuth()
-  @Roles('admin', 'owner')
-  @UseGuards(AuthGuard, RolesGuard)
-  async deletePrice(@Req() req: Request, @Param('id') id: string) {
-    const price = await this.priceTableService.findPriceById(+id);
-    
-    if (req.user.role === 'owner' && req.user.id !== price.priceTable.owner_id) {
-      throw new ForbiddenException(
-        'You are not allowed to delete this price',
-      );
-    }
-    
-    return this.priceTableService.deletePrice(+id);
   }
 }
