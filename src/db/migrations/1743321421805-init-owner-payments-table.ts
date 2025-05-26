@@ -1,4 +1,10 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+  TableIndex,
+} from 'typeorm';
 
 export class InitOwnerPaymentsTable1743321421805 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -24,7 +30,17 @@ export class InitOwnerPaymentsTable1743321421805 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: 'bank_name',
+            name: 'bank_code',
+            type: 'varchar',
+            isNullable: false,
+          },
+          {
+            name: 'bank_info',
+            type: 'json',
+            isNullable: true,
+          },
+          {
+            name: 'qr_image',
             type: 'varchar',
             isNullable: false,
           },
@@ -32,6 +48,22 @@ export class InitOwnerPaymentsTable1743321421805 implements MigrationInterface {
             name: 'owner_id',
             type: 'int',
             isNullable: false,
+          },
+          {
+            name: 'is_active',
+            type: 'boolean',
+            default: true,
+          },
+          {
+            name: 'created_at',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
+          },
+          {
+            name: 'updated_at',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
+            onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
@@ -45,6 +77,15 @@ export class InitOwnerPaymentsTable1743321421805 implements MigrationInterface {
         referencedColumnNames: ['id'],
         referencedTableName: 'users',
         onDelete: 'CASCADE',
+      }),
+    );
+
+    await queryRunner.createIndex(
+      'owner_payments',
+      new TableIndex({
+        name: 'UQ_BANK_CODE_PAYMENT_NUMBER',
+        columnNames: ['bank_code', 'payment_number'],
+        isUnique: true,
       }),
     );
   }

@@ -32,5 +32,6 @@ export class CreatePriceTableDto {
 
   @ApiProperty({ description: 'Owner ID' })
   @IsNumber()
-  owner_id: number;
+  @IsOptional()
+  owner_id?: number;
 }

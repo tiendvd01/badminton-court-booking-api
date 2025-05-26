@@ -1,24 +1,64 @@
-import { User } from "@modules/user/entity/user.entity";
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
+import { User } from '@modules/user/entity/user.entity';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Unique,
+} from 'typeorm';
 
-@Entity("owner_payments")
+export interface BankInfo {
+  id: string;
+  name: string;
+  code: string;
+  bin: string;
+  shortName: string;
+  logo: string;
+  transferSupported: number;
+  lookupSupported: number;
+  short_name: string;
+  support: number;
+  isTransfer: number;
+  swift_code: string;
+}
+
+@Entity('owner_payments')
+@Unique(['bank_code', 'payment_number'])
 export class OwnerPayment {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    account_name: string;
+  @Column()
+  account_name: string;
 
-    @Column()
-    payment_number: string;
+  @Column()
+  payment_number: string;
 
-    @Column()
-    bank_name: string;
+  @Column({ type: 'json', nullable: true })
+  bank_info: BankInfo;
 
-    @Column()
-    owner_id: string;
+  @Column()
+  bank_code: string;
 
-    @ManyToOne(() => User)
-    @JoinColumn({ name: "owner_id" })
-    owner: User;
+  @Column()
+  qr_image: string;
+
+  @Column()
+  owner_id: string;
+
+  @Column({ default: true })
+  is_active: boolean;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'owner_id' })
+  owner: User;
 }
