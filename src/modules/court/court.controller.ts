@@ -24,36 +24,36 @@ import { AuthGuard } from 'common/guards/auth.guard';
 import { RolesGuard } from 'common/guards/roles.guard';
 import { Request } from 'express';
 
-@ApiTags('courts')
-@Controller('courts')
+@ApiTags('locations')
+@Controller('locations')
 export class CourtController {
   constructor(private readonly courtService: CourtService) {}
 
   // Location endpoints
-  @Post('locations')
+  @Post('/')
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
-  async createLocation(@Req() req: Request, @Body() data: { locationData: CreateLocationDto, courtData: CreateCourtDto[] }) {
-    if (req.user.role == 'owner' && req.user.id != data.locationData.owner_id) {
+  async createLocation(@Req() req: Request, @Body() data: CreateLocationDto) {
+    if (req.user.role == 'owner' && req.user.id != data.owner_id) {
       throw new ForbiddenException(
         'You are not allowed to create location for this owner',
       );
     }
-    return this.courtService.createLocation(data.locationData, data.courtData);
+    return this.courtService.createLocation(data);
   }
 
-  @Get('locations')
+  @Get('/')
   async findAllLocations() {
     return this.courtService.findAllLocations();
   }
 
-  @Get('locations/:id')
+  @Get('/:id')
   async findLocationById(@Param('id') id: string) {
     return this.courtService.findLocationById(+id);
   }
 
-  @Patch('locations/:id')
+  @Patch('/:id')
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
@@ -71,7 +71,7 @@ export class CourtController {
     return this.courtService.updateLocation(+id, data);
   }
 
-  @Delete('locations/:id')
+  @Delete('/:id')
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
@@ -86,7 +86,7 @@ export class CourtController {
   }
 
   // Court endpoints
-  @Post()
+  @Post('courts')
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
@@ -106,28 +106,29 @@ export class CourtController {
     return this.courtService.createCourt(data);
   }
 
-  @Get()
-  async findAllCourts(@Query('locationId') locationId?: string) {
+  @Get('/:id/courts')
+  async findAllCourts(@Param('id') locationId?: string) {
     return this.courtService.findAllCourts(
       locationId ? +locationId : undefined,
     );
   }
 
-  @Get(':id')
+  @Get('/courts/:id')
   async findCourtById(@Param('id') id: string) {
     return this.courtService.findCourtById(+id);
   }
 
-  @Patch(':id')
+  @Patch('/courts/:id')
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
   async updateCourt(
     @Req() req: Request,
     @Param('id') id: string,
-    @Body() data: Partial<Omit<CreateCourtDto, 'location_id'>>,
+    @Body() data: Partial<CreateCourtDto>,
   ) {
-    const location = await this.courtService.findLocationById(+id);
+    const court = await this.courtService.findCourtById(+id);
+    const location = await this.courtService.findLocationById(court.location_id);
 
     if (!location) {
       throw new BadRequestException('Location not found');
@@ -142,12 +143,13 @@ export class CourtController {
     return this.courtService.updateCourt(+id, data);
   }
 
-  @Delete(':id')
+  @Delete('/courts/:id')
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
   async deleteCourt(@Req() req: Request, @Param('id') id: string) {
-    const location = await this.courtService.findLocationById(+id);
+    const court = await this.courtService.findCourtById(+id);
+    const location = await this.courtService.findLocationById(+court.location_id);
 
     if (!location) {
       throw new BadRequestException('Location not found');
@@ -161,26 +163,26 @@ export class CourtController {
     return this.courtService.deleteCourt(+id);
   }
 
-  @Post('locations/:id/images/add')
+  @Post('/:id/images/add')
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
   async addLocationImages(
     @Param('id') id: string,
-    @Body() imageUrls: string[],
+    @Body() data: { imageUrls: string[] },
   ) {
-    if (!imageUrls || imageUrls.length === 0) {
+    if (!data.imageUrls || data.imageUrls.length === 0) {
       throw new BadRequestException('No images uploaded');
     }
-    return this.courtService.addManyLocationImages(+id, imageUrls);
+    return this.courtService.addManyLocationImages(+id, data.imageUrls);
   }
 
-  @Get('locations/:id/images')
+  @Get('/:id/images')
   async getLocationImages(@Param('id') id: string) {
     return this.courtService.getLocationImages(+id);
   }
 
-  @Delete('locations/images/:id')
+  @Delete('/images/:id')
   @ApiBearerAuth()
   @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)

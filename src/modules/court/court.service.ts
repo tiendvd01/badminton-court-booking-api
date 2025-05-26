@@ -18,10 +18,9 @@ export class CourtService {
     private locationImageRepository: Repository<LocationImage>,
   ) {}
 
-  async createLocation(locationData: CreateLocationDto, courtData: CreateCourtDto[] = []) {
+  async createLocation(locationData: CreateLocationDto) {
     const location = this.locationRepository.create({
       ...locationData,
-      courts: courtData.map((court) => this.courtRepository.create(court)),
     });
 
     return this.locationRepository.save(location);
@@ -29,14 +28,14 @@ export class CourtService {
 
   async findAllLocations() {
     return this.locationRepository.find({
-      relations: ['courts'],
+      relations: ['courts', 'owner', 'images'],
     });
   }
 
   async findLocationById(id: number) {
     const location = await this.locationRepository.findOne({
       where: { id },
-      relations: ['courts'],
+      relations: ['courts', 'images', 'owner'],
     });
     if (!location) {
       throw new NotFoundException('Location not found');
@@ -69,14 +68,14 @@ export class CourtService {
     const where = locationId ? { location_id: locationId } : {};
     return this.courtRepository.find({
       where,
-      relations: ['location', 'prices'],
+      relations: ['location', 'priceTable'],
     });
   }
 
   async findCourtById(id: number) {
     const court = await this.courtRepository.findOne({
       where: { id },
-      relations: ['location', 'prices'],
+      relations: ['location', 'priceTable'],
     });
     if (!court) {
       throw new NotFoundException('Court not found');
@@ -111,7 +110,7 @@ export class CourtService {
       });
     });
     
-    await this.locationImageRepository.save(locationImages);
+    return await this.locationImageRepository.save(locationImages);
   }
 
   async getLocationImages(locationId: number) {
