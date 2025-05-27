@@ -2,11 +2,12 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
   Post,
-  Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
@@ -15,17 +16,19 @@ import { Roles } from 'common/decorators/roles.decorator';
 import { AuthGuard } from 'common/guards/auth.guard';
 import { RolesGuard } from 'common/guards/roles.guard';
 import { Booking } from './entity/booking.entity';
-import { Payment } from './entity/payment.entity';
+import { CourtService } from '@modules/court/court.service';
+import { Request } from 'express';
 
 @ApiTags('bookings')
 @Controller('bookings')
 export class BookingController {
-  constructor(private readonly bookingService: BookingService) {}
+  constructor(
+    private readonly bookingService: BookingService,
+    private readonly courtService: CourtService,
+  ) {}
 
   @Post()
   @ApiBearerAuth()
-  @Roles('admin', 'customer')
-  @UseGuards(AuthGuard, RolesGuard)
   async createBooking(@Body() data: Partial<Booking>) {
     return this.bookingService.createBooking(data);
   }
@@ -42,57 +45,51 @@ export class BookingController {
 
   @Patch(':id')
   @ApiBearerAuth()
-  @Roles('admin', 'customer')
+  @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
   async updateBooking(
+    @Req() req: Request,
     @Param('id') id: string,
     @Body() data: Partial<Booking>,
   ) {
+    const booking = await this.bookingService.findBookingById(+id);
+
+    if (req.user.role === 'owner') {
+      const court = await this.courtService.findCourtById(+booking.court_id);
+      const location = await this.courtService.findLocationById(
+        court.location_id,
+      );
+
+      if (location.owner_id !== req.user.id) {
+        throw new ForbiddenException(
+          'You are not allowed to update bookings for courts you do not own',
+        );
+      }
+    }
+
     return this.bookingService.updateBooking(+id, data);
   }
 
   @Delete(':id')
   @ApiBearerAuth()
-  @Roles('admin', 'customer')
+  @Roles('admin', 'owner')
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteBooking(@Param('id') id: string) {
+  async deleteBooking(@Req() req: Request, @Param('id') id: string) {
+    const booking = await this.bookingService.findBookingById(+id);
+
+    if (req.user.role === 'owner') {
+      const court = await this.courtService.findCourtById(+booking.court_id);
+      const location = await this.courtService.findLocationById(
+        court.location_id,
+      );
+
+      if (location.owner_id !== req.user.id) {
+        throw new ForbiddenException(
+          'You are not allowed to delete bookings for courts you do not own',
+        );
+      }
+    }
+
     return this.bookingService.deleteBooking(+id);
-  }
-
-  @Post('payments')
-  @ApiBearerAuth()
-  @Roles('admin', 'customer')
-  @UseGuards(AuthGuard, RolesGuard)
-  async createPayment(@Body() data: Partial<Payment>) {
-    return this.bookingService.createPayment(data);
-  }
-
-  @Get('payments')
-  async findAllPayments() {
-    return this.bookingService.findAllPayments();
-  }
-
-  @Get('payments/:id')
-  async findPaymentById(@Param('id') id: string) {
-    return this.bookingService.findPaymentById(+id);
-  }
-
-  @Patch('payments/:id')
-  @ApiBearerAuth()
-  @Roles('admin', 'customer')
-  @UseGuards(AuthGuard, RolesGuard)
-  async updatePayment(
-    @Param('id') id: string,
-    @Body() data: Partial<Payment>,
-  ) {
-    return this.bookingService.updatePayment(+id, data);
-  }
-
-  @Delete('payments/:id')
-  @ApiBearerAuth()
-  @Roles('admin', 'customer')
-  @UseGuards(AuthGuard, RolesGuard)
-  async deletePayment(@Param('id') id: string) {
-    return this.bookingService.deletePayment(+id);
   }
 }

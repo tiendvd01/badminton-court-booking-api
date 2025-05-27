@@ -1,7 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
 import { User } from "../../user/entity/user.entity";
 import { Court } from "../../court/entity/court.entity";
-import { Payment } from "./payment.entity";
 
 @Entity('bookings')
 export class Booking {
@@ -50,6 +49,6 @@ export class Booking {
     @JoinColumn({ name: "court_id" })
     court: Court;
 
-    @OneToMany(() => Payment, payment => payment.booking)
-    payments: Payment[];
+    @Column()
+    payment_image: string;
 } 
