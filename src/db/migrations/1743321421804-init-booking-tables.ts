@@ -17,7 +17,7 @@ export class InitBookingTables1743321421804 implements MigrationInterface {
           {
             name: 'customer_id',
             type: 'int',
-            isNullable: false,
+            isNullable: true
           },
           {
             name: 'court_id',
@@ -49,7 +49,7 @@ export class InitBookingTables1743321421804 implements MigrationInterface {
           {
             name: 'status',
             type: 'enum',
-            enum: ['pending', 'completed', 'failed'],
+            enum: ['pending', 'completed', 'cancelled', 'confirmed'],
             default: "'pending'",
             isNullable: false,
           },

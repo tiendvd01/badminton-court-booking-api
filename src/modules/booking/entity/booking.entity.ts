@@ -2,13 +2,20 @@ import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDa
 import { User } from "../../user/entity/user.entity";
 import { Court } from "../../court/entity/court.entity";
 
+export enum BookingStatus {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  CANCELLED = 'cancelled',
+  COMPLETED = 'completed',
+}
+
 @Entity('bookings')
 export class Booking {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
-    customer_id: number;
+    @Column({ nullable: true })
+    customer_id?: number;
 
     @Column()
     court_id: string;
@@ -27,10 +34,10 @@ export class Booking {
 
     @Column({
         type: "enum",
-        enum: ["pending", "completed", "failed"],
-        default: "pending"
+        enum: BookingStatus,
+        default: BookingStatus.PENDING,
     })
-    status: string;
+    status: BookingStatus;
 
     @Column({ nullable: true })
     note: string;
@@ -43,7 +50,7 @@ export class Booking {
 
     @ManyToOne(() => User)
     @JoinColumn({ name: "customer_id" })
-    customer: User;
+    customer?: User;
 
     @ManyToOne(() => Court)
     @JoinColumn({ name: "court_id" })

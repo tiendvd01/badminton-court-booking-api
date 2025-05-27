@@ -9,15 +9,18 @@ import {
   Post,
   Req,
   UseGuards,
+  BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { Roles } from 'common/decorators/roles.decorator';
 import { AuthGuard } from 'common/guards/auth.guard';
 import { RolesGuard } from 'common/guards/roles.guard';
 import { Booking } from './entity/booking.entity';
 import { CourtService } from '@modules/court/court.service';
 import { Request } from 'express';
+import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
 
 @ApiTags('bookings')
 @Controller('bookings')
@@ -34,8 +37,16 @@ export class BookingController {
   }
 
   @Get()
-  async findAllBookings() {
-    return this.bookingService.findAllBookings();
+  async findAllBookings(
+    @Query('customerName') customerName?: string,
+    @Query('bookingDate') bookingDate?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.bookingService.findAllBookings({
+      customerName,
+      bookingDate,
+      status,
+    });
   }
 
   @Get(':id')
@@ -68,6 +79,39 @@ export class BookingController {
     }
 
     return this.bookingService.updateBooking(+id, data);
+  }
+
+  @Patch(':id/status')
+  @ApiBearerAuth()
+  @Roles('admin', 'owner')
+  @UseGuards(AuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Update booking status' })
+  @ApiBody({ type: UpdateBookingStatusDto })
+  async updateBookingStatus(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body() data: UpdateBookingStatusDto,
+  ) {
+    const booking = await this.bookingService.findBookingById(+id);
+    
+    if (!booking) {
+      throw new BadRequestException('Booking not found');
+    }
+
+    if (req.user.role === 'owner') {
+      const court = await this.courtService.findCourtById(+booking.court_id);
+      const location = await this.courtService.findLocationById(
+        court.location_id,
+      );
+
+      if (location.owner_id !== req.user.id) {
+        throw new ForbiddenException(
+          'You are not allowed to update status for bookings of courts you do not own',
+        );
+      }
+    }
+
+    return this.bookingService.updateBookingStatus(+id, data.status);
   }
 
   @Delete(':id')
