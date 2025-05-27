@@ -37,6 +37,11 @@ export class InitCourtTables1743321421803 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'min_shift_time',
+            type: 'int',
+            isNullable: false,
+          },
+          {
             name: 'created_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',

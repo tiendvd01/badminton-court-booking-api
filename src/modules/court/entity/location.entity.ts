@@ -19,6 +19,9 @@ export class Location {
     @Column()
     owner_id: number;
 
+    @Column()
+    min_shift_time: number;
+
     @ManyToOne(type => User)
     @JoinColumn({ name: "owner_id" })
     owner: User;

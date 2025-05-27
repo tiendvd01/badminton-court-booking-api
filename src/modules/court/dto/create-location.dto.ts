@@ -15,6 +15,10 @@ export class CreateLocationDto {
   @IsOptional()
   description?: string;
 
+  @ApiProperty({ description: 'Minimum shift time (in minutes)' })
+  @IsNumber()
+  min_shift_time: number;
+
   @ApiProperty({ description: 'Location owner ID' })
   @IsNumber()
   owner_id: number;
