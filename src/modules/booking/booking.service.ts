@@ -4,6 +4,7 @@ import { Booking } from './entity/booking.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BookingStatus } from './entity/booking.entity';
 import { NotificationsGateway } from 'common/websocket/NotificationsGateway';
+import { NotificationService } from '@modules/notification/notification.service';
 
 @Injectable()
 export class BookingService {
@@ -11,6 +12,7 @@ export class BookingService {
     @InjectRepository(Booking)
     private bookingRepository: Repository<Booking>,
     private notificationsGateway: NotificationsGateway,
+    private notificationService: NotificationService
   ) {}
 
   async createBooking(bookingData: Partial<Booking>): Promise<Booking> {
@@ -19,6 +21,14 @@ export class BookingService {
 
     // Send notification to owner
     if (savedBooking.court?.location?.owner_id) {
+      await this.notificationService.createNotification(
+        'new-booking',
+        savedBooking.court.location.owner_id,
+        {
+          message: 'A new booking has been created for your court',
+          booking: savedBooking,
+        },
+      );
       this.notificationsGateway.sendToUser(
         'new-booking',
         savedBooking.court.location.owner_id.toString(),

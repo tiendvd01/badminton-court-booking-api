@@ -9,6 +9,7 @@ import { BookingModule } from '@modules/booking/booking.module';
 import { OwnerPaymentModule } from './modules/owner-payments/owner-payment.module';
 import { UploadModule } from '@modules/upload/upload.module';
 import { PriceTableModule } from '@modules/price-table/price-table.module';
+import { NotificationModule } from '@modules/notification/notification.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { PriceTableModule } from '@modules/price-table/price-table.module';
     OwnerPaymentModule,
     UploadModule,
     PriceTableModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [],

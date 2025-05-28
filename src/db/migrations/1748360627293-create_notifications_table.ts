@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
 
 export class CreateNotificationsTable1748360627293
   implements MigrationInterface
@@ -16,9 +16,14 @@ export class CreateNotificationsTable1748360627293
             generationStrategy: 'increment',
           },
           {
-            name: 'message',
-            type: 'text',
+            name: 'user_id',
+            type: 'int',
             isNullable: false,
+          },
+          {
+            name: 'is_read',
+            type: 'boolean',
+            default: false,
           },
           {
             name: 'data',
@@ -42,6 +47,15 @@ export class CreateNotificationsTable1748360627293
             onUpdate: 'CURRENT_TIMESTAMP',
           },
         ],
+      }),
+    );
+    await queryRunner.createForeignKey(
+      'notifications',
+      new TableForeignKey({
+        columnNames: ['user_id'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'users',
+        onDelete: 'CASCADE',
       }),
     );
   }
