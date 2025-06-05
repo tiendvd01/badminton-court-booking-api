@@ -22,4 +22,9 @@ export class CreateLocationDto {
   @ApiProperty({ description: 'Location owner ID' })
   @IsNumber()
   owner_id: number;
+
+  @ApiPropertyOptional({ description: 'Location logo' })
+  @IsString()
+  @IsOptional()
+  logo?: string;
 } 

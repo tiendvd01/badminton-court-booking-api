@@ -20,6 +20,9 @@ export class Location {
     owner_id: number;
 
     @Column()
+    logo?: string;
+
+    @Column()
     min_shift_time: number;
 
     @ManyToOne(type => User)
