@@ -38,6 +38,13 @@ export class PriceTableController {
     return this.priceTableService.createPriceTable(data);
   }
 
+  @Get('byLocation')
+  async findAllPriceTablesByLocation(@Query('locationId') locationId?: string) {
+    return this.priceTableService.findAllPriceTablesByLocation(
+      locationId ? +locationId : undefined,
+    );
+  }
+
   @Get()
   async findAllPriceTables(@Query('ownerId') ownerId?: string) {
     return this.priceTableService.findAllPriceTables(
