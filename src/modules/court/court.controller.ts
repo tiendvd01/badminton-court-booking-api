@@ -17,8 +17,10 @@ import { CreateLocationDto } from './dto/create-location.dto';
 import { CreateCourtDto } from './dto/create-court.dto';
 import {
   ApiBearerAuth,
-  ApiTags
+  ApiTags,
+  ApiQuery
 } from '@nestjs/swagger';
+import { FindLocationsDto } from './dto/find-locations.dto';
 import { Roles } from 'common/decorators/roles.decorator';
 import { AuthGuard } from 'common/guards/auth.guard';
 import { RolesGuard } from 'common/guards/roles.guard';
@@ -44,8 +46,15 @@ export class CourtController {
   }
 
   @Get('/')
-  async findAllLocations() {
-    return this.courtService.findAllLocations();
+  @ApiQuery({ name: 'province', required: false, type: String })
+  @ApiQuery({ name: 'district', required: false, type: String })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  async findAllLocations(@Query() filters: FindLocationsDto) {
+    return this.courtService.findAllLocations({
+      province: filters?.province,
+      district: filters?.district,
+      search: filters?.search,
+    });
   }
 
   @Get('/:id')

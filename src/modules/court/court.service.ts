@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Location } from './entity/location.entity';
@@ -26,10 +30,39 @@ export class CourtService {
     return this.locationRepository.save(location);
   }
 
-  async findAllLocations() {
-    return this.locationRepository.find({
-      relations: ['courts', 'owner', 'images'],
-    });
+  async findAllLocations(filters?: {
+    province?: string;
+    district?: string;
+    search?: string;
+  }) {
+    const query = this.locationRepository
+      .createQueryBuilder('location')
+      .leftJoinAndSelect('location.courts', 'courts')
+      .leftJoinAndSelect('location.owner', 'owner')
+      .leftJoinAndSelect('location.images', 'images');
+
+    if (filters?.province) {
+      // Tìm kiếm đơn giản với LIKE và LOWER
+      query.andWhere('LOWER(location.address) LIKE LOWER(:province)', {
+        province: `%${filters.province}%`,
+      });
+    }
+
+    if (filters?.district) {
+      query.andWhere('LOWER(location.address) LIKE LOWER(:district)', {
+        district: `%${filters.district}%`,
+      });
+    }
+
+    if (filters?.search) {
+      const searchTerm = `%${filters.search}%`;
+      query.andWhere(
+        '(LOWER(location.name) LIKE LOWER(:search) OR LOWER(location.address) LIKE LOWER(:search))',
+        { search: searchTerm },
+      );
+    }
+
+    return query.getMany();
   }
 
   async findLocationById(id: number) {
@@ -101,7 +134,7 @@ export class CourtService {
   async addManyLocationImages(locationId: number, imageUrls: string[]) {
     // Verify location exists
     const location = await this.findLocationById(locationId);
-    
+
     const locationImages = imageUrls.map((imageUrl) => {
       return this.locationImageRepository.create({
         location_id: locationId,
@@ -109,14 +142,14 @@ export class CourtService {
         location,
       });
     });
-    
+
     return await this.locationImageRepository.save(locationImages);
   }
 
   async getLocationImages(locationId: number) {
     // Verify location exists
     await this.findLocationById(locationId);
-    
+
     return this.locationImageRepository.find({
       where: { location_id: locationId },
     });
@@ -126,12 +159,12 @@ export class CourtService {
     const image = await this.locationImageRepository.findOne({
       where: { id },
     });
-    
+
     if (!image) {
       throw new NotFoundException('Location image not found');
     }
-    
+
     await this.locationImageRepository.delete(id);
     return { message: 'Location image deleted successfully' };
   }
-} 
+}

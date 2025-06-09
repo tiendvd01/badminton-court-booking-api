@@ -29,11 +29,26 @@ export class PriceTableService {
   }
 
   async findAllPriceTablesByLocation(locationId: number) {
-    const locations = await this.locationRepository.findOne({
+    const location = await this.locationRepository.findOne({
       where: { id: locationId },
       relations: ['courts.priceTable'],
     });
-    return locations.courts.map((court) => court.priceTable);
+
+    if (!location) {
+      throw new NotFoundException('Location not found');
+    }
+
+    // Sử dụng Map để loại bỏ các priceTable trùng lặp dựa trên id
+    const uniquePriceTables = new Map<number, any>();
+
+    location.courts.forEach((court) => {
+      if (court.priceTable) {
+        uniquePriceTables.set(court.priceTable.id, court.priceTable);
+      }
+    });
+
+    // Chuyển Map thành mảng các priceTable
+    return Array.from(uniquePriceTables.values());
   }
 
   async findPriceTableById(id: number) {
@@ -41,11 +56,11 @@ export class PriceTableService {
       where: { id },
       relations: ['owner'],
     });
-    
+
     if (!priceTable) {
       throw new NotFoundException('Price table not found');
     }
-    
+
     return priceTable;
   }
 
