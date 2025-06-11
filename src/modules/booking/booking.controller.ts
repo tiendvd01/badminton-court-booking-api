@@ -21,6 +21,7 @@ import { Booking } from './entity/booking.entity';
 import { CourtService } from '@modules/court/court.service';
 import { Request } from 'express';
 import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
+import { CreateBookingDto } from './dto/create-booking.dto';
 
 @ApiTags('bookings')
 @Controller('bookings')
@@ -32,7 +33,7 @@ export class BookingController {
 
   @Post()
   @ApiBearerAuth()
-  async createBooking(@Body() data: Partial<Booking>) {
+  async createBooking(@Body() data: CreateBookingDto) {
     return this.bookingService.createBooking(data);
   }
 
@@ -66,7 +67,7 @@ export class BookingController {
     const booking = await this.bookingService.findBookingById(+id);
 
     if (req.user.role === 'owner') {
-      const court = await this.courtService.findCourtById(+booking.court_id);
+      const court = await this.courtService.findCourtById(+booking.slots[0].court_id);
       const location = await this.courtService.findLocationById(
         court.location_id,
       );
@@ -99,7 +100,7 @@ export class BookingController {
     }
 
     if (req.user.role === 'owner') {
-      const court = await this.courtService.findCourtById(+booking.court_id);
+      const court = await this.courtService.findCourtById(+booking.slots[0].court_id);
       const location = await this.courtService.findLocationById(
         court.location_id,
       );
@@ -122,7 +123,7 @@ export class BookingController {
     const booking = await this.bookingService.findBookingById(+id);
 
     if (req.user.role === 'owner') {
-      const court = await this.courtService.findCourtById(+booking.court_id);
+      const court = await this.courtService.findCourtById(+booking.slots[0].court_id);
       const location = await this.courtService.findLocationById(
         court.location_id,
       );

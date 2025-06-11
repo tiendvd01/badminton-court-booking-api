@@ -30,13 +30,8 @@ export class InitBookingTables1743321421804 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: 'start_time',
-            type: 'time',
-            isNullable: false,
-          },
-          {
-            name: 'end_time',
-            type: 'time',
+            name: 'slots',
+            type: 'jsonb',
             isNullable: false,
           },
           {
@@ -137,16 +132,6 @@ export class InitBookingTables1743321421804 implements MigrationInterface {
       }),
     );
 
-    await queryRunner.createForeignKey(
-      'bookings',
-      new TableForeignKey({
-        columnNames: ['court_id'],
-        referencedColumnNames: ['id'],
-        referencedTableName: 'courts',
-        onDelete: 'CASCADE',
-      }),
-    );
-
     // Add foreign key constraint for payments
     await queryRunner.createForeignKey(
       'payments',
@@ -164,52 +149,6 @@ export class InitBookingTables1743321421804 implements MigrationInterface {
       new TableIndex({
         name: 'IDX_BOOKING_CUSTOMER_ID',
         columnNames: ['customer_id'],
-        isUnique: false,
-      }),
-    );
-
-    await queryRunner.createIndex(
-      'bookings',
-      new TableIndex({
-        name: 'IDX_BOOKING_COURT_ID',
-        columnNames: ['court_id'],
-        isUnique: false,
-      }),
-    );
-
-    await queryRunner.createIndex(
-      'bookings',
-      new TableIndex({
-        name: 'IDX_BOOKING_DATE_TIME',
-        columnNames: ['booking_date', 'start_time', 'end_time'],
-        isUnique: false,
-      }),
-    );
-
-    await queryRunner.createIndex(
-      'bookings',
-      new TableIndex({
-        name: 'IDX_BOOKING_STATUS',
-        columnNames: ['status'],
-        isUnique: false,
-      }),
-    );
-
-    // Add indexes for payments
-    await queryRunner.createIndex(
-      'payments',
-      new TableIndex({
-        name: 'IDX_PAYMENT_BOOKING_ID',
-        columnNames: ['booking_id'],
-        isUnique: false,
-      }),
-    );
-
-    await queryRunner.createIndex(
-      'payments',
-      new TableIndex({
-        name: 'IDX_PAYMENT_STATUS',
-        columnNames: ['status'],
         isUnique: false,
       }),
     );

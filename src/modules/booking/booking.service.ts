@@ -5,18 +5,68 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BookingStatus } from './entity/booking.entity';
 import { NotificationsGateway } from 'common/websocket/NotificationsGateway';
 import { NotificationService } from '@modules/notification/notification.service';
+import { CreateBookingDto } from './dto/create-booking.dto';
+import { CourtService } from '@modules/court/court.service';
+import { PriceTableService } from '@modules/price-table/price-table.service';
 
 @Injectable()
 export class BookingService {
   constructor(
     @InjectRepository(Booking)
     private bookingRepository: Repository<Booking>,
+    private courtService: CourtService,
+    private priceTableService: PriceTableService,
     private notificationsGateway: NotificationsGateway,
     private notificationService: NotificationService
   ) {}
 
-  async createBooking(bookingData: Partial<Booking>): Promise<Booking> {
-    const booking = this.bookingRepository.create(bookingData);
+  async createBooking(bookingData: CreateBookingDto): Promise<Booking> {
+
+    let totalPrice = 0;
+    for (const slot of bookingData.slots) {
+      const court = await this.courtService.findCourtById(slot.courtId);
+      const priceTable = await this.priceTableService.findPriceTableById(court.price_table_id);
+
+      const [startHours, startMinutes] = slot.startTime.split(':').map(Number);
+      const [endHours, endMinutes] = slot.endTime.split(':').map(Number);
+
+      // Calculate duration in hours
+      const startDate = new Date();
+      startDate.setHours(startHours, startMinutes, 0, 0);
+      
+      const endDate = new Date();
+      endDate.setHours(endHours, endMinutes, 0, 0);
+      
+      const durationHours = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
+
+      // Find matching price for the time slot
+      const price = priceTable.prices.find((item) => {
+        const [itemStartHours, itemStartMinutes] = item.start_time.split(':').map(Number);
+        const [itemEndHours, itemEndMinutes] = item.end_time.split(':').map(Number);
+        
+        const priceStart = new Date().setHours(itemStartHours, itemStartMinutes);
+        const priceEnd = new Date().setHours(itemEndHours, itemEndMinutes);
+        const slotStart = new Date().setHours(startHours, startMinutes);
+        const slotEnd = new Date().setHours(endHours, endMinutes);
+        
+        // Check if the booking slot is within the price time range
+        return slotStart >= priceStart && slotEnd <= priceEnd;
+      });
+      
+      // Calculate price for this slot (price per hour * duration)
+      totalPrice += (price?.price || 0) * durationHours;
+    }
+
+    const booking = this.bookingRepository.create({
+      slots: bookingData.slots.map((slot) => ({
+        court_id: slot.courtId,
+        start_time: slot.startTime,
+        end_time: slot.endTime,
+      })),
+      total_price: totalPrice,
+      customer_info: bookingData.customer_info,
+    });
+    
     const savedBooking = await this.bookingRepository.save(booking);
 
     // Send notification to owner

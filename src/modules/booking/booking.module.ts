@@ -7,9 +7,10 @@ import { CourtModule } from '@modules/court/court.module';
 import { NotificationsGateway } from 'common/websocket/NotificationsGateway';
 import { NotificationService } from '@modules/notification/notification.service';
 import { NotificationModule } from '@modules/notification/notification.module';
+import { PriceTableModule } from '@modules/price-table/price-table.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Booking]), CourtModule, NotificationModule],
+  imports: [TypeOrmModule.forFeature([Booking]), CourtModule, NotificationModule, PriceTableModule],
   controllers: [BookingController],
   providers: [BookingService, NotificationsGateway],
   exports: [BookingService],

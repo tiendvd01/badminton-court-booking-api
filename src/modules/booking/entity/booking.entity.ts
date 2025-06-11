@@ -9,6 +9,12 @@ export enum BookingStatus {
   COMPLETED = 'completed',
 }
 
+export interface Slot {
+  court_id: number;
+  start_time: string;
+  end_time: string;
+}
+
 @Entity('bookings')
 export class Booking {
     @PrimaryGeneratedColumn()
@@ -17,17 +23,17 @@ export class Booking {
     @Column({ nullable: true })
     customer_id?: number;
 
-    @Column()
-    court_id: string;
+    @Column({ type: "json" })
+    customer_info?: {
+        name: string;
+        phone_number: string;
+    };
 
     @Column({ type: "date" })
     booking_date: Date;
 
-    @Column({ type: "time" })
-    start_time: string;
-
-    @Column({ type: "time" })
-    end_time: string;
+    @Column({ type: "json" })
+    slots: Slot[];
 
     @Column({ type: "decimal", precision: 10, scale: 2 })
     total_price: number;
