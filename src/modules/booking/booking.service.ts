@@ -65,23 +65,20 @@ export class BookingService {
       })),
       total_price: totalPrice,
       customer_info: bookingData.customer_info,
+      booking_date: bookingData.booking_date,
+      note: bookingData.note,
+      status: BookingStatus.PENDING,
+
     });
     
     const savedBooking = await this.bookingRepository.save(booking);
 
     // Send notification to owner
-    if (savedBooking.court?.location?.owner_id) {
-      await this.notificationService.createNotification(
-        'new-booking',
-        savedBooking.court.location.owner_id,
-        {
-          message: 'A new booking has been created for your court',
-          booking: savedBooking,
-        },
-      );
+    if (booking.slots[0].court_id) {
+      const court = await this.courtService.findCourtById(booking.slots[0].court_id);
       this.notificationsGateway.sendToUser(
         'new-booking',
-        savedBooking.court.location.owner_id.toString(),
+        court.location.owner_id.toString(),
         {
           message: 'A new booking has been created for your court',
           booking: savedBooking,

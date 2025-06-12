@@ -58,10 +58,6 @@ export class Booking {
     @JoinColumn({ name: "customer_id" })
     customer?: User;
 
-    @ManyToOne(() => Court)
-    @JoinColumn({ name: "court_id" })
-    court: Court;
-
     @Column()
     payment_image: string;
 } 

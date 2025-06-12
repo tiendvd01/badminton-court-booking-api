@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsNumber, IsObject, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsDate, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 export class Slot {
     @ApiProperty({ description: 'ID of the court', example: 1 })
@@ -55,4 +55,14 @@ export class CreateBookingDto {
     @IsObject()
     @ValidateNested()
     customer_info: CustomerInfoDto;
+
+    @ApiProperty({ description: 'Booking date', example: '2023-01-01' })
+    @IsDate()
+    @IsNotEmpty()
+    booking_date: Date;
+
+    @ApiProperty({ description: 'Note', example: 'Note' })
+    @IsString()
+    @IsOptional()
+    note?: string;
 }
