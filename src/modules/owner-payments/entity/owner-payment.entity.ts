@@ -44,9 +44,6 @@ export class OwnerPayment {
   bank_code: string;
 
   @Column()
-  qr_image: string;
-
-  @Column()
   owner_id: string;
 
   @Column({ default: true })

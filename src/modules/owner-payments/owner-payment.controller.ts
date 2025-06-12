@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Req } from "@nestjs/common";
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Req, NotFoundException } from "@nestjs/common";
 import { OwnerPaymentService } from "./owner-payment.service";
 import { OwnerPayment } from "./entity/owner-payment.entity";
-import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiTags, ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
 import { AuthGuard } from "common/guards/auth.guard";
 import { RolesGuard } from "common/guards/roles.guard";
 import { Roles } from "common/decorators/roles.decorator";
@@ -26,9 +26,13 @@ export class OwnerPaymentController {
     }
 
     @Get()
-    async findAll(@Query('ownerId') ownerId?: string): Promise<OwnerPayment[]> {
+    @ApiQuery({ name: 'isActive', required: false, type: Boolean })
+    async findAll(
+        @Query('ownerId') ownerId?: string,
+        @Query('isActive') isActive?: boolean
+    ): Promise<OwnerPayment[]> {
         if (ownerId) {
-            return this.ownerPaymentService.findByOwnerId(ownerId);
+            return this.ownerPaymentService.findByOwnerId(ownerId, isActive);
         }
         return this.ownerPaymentService.findAll();
     }

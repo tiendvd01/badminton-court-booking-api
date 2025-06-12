@@ -40,11 +40,6 @@ export class InitOwnerPaymentsTable1743321421805 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name: 'qr_image',
-            type: 'varchar',
-            isNullable: false,
-          },
-          {
             name: 'owner_id',
             type: 'int',
             isNullable: false,

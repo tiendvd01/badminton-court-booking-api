@@ -8,6 +8,7 @@ import { NotificationService } from '@modules/notification/notification.service'
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { CourtService } from '@modules/court/court.service';
 import { PriceTableService } from '@modules/price-table/price-table.service';
+import { generateUniqueCode } from 'utils';
 
 @Injectable()
 export class BookingService {
@@ -17,7 +18,6 @@ export class BookingService {
     private courtService: CourtService,
     private priceTableService: PriceTableService,
     private notificationsGateway: NotificationsGateway,
-    private notificationService: NotificationService
   ) {}
 
   async createBooking(bookingData: CreateBookingDto): Promise<Booking> {
@@ -65,10 +65,10 @@ export class BookingService {
       })),
       total_price: totalPrice,
       customer_info: bookingData.customer_info,
-      booking_date: bookingData.booking_date,
+      booking_date: new Date(bookingData.booking_date),
       note: bookingData.note,
       status: BookingStatus.PENDING,
-
+      booking_code: generateUniqueCode(),
     });
     
     const savedBooking = await this.bookingRepository.save(booking);

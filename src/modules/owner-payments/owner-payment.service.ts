@@ -20,9 +20,15 @@ export class OwnerPaymentService {
         });
     }
 
-    async findByOwnerId(ownerId?: string): Promise<OwnerPayment[]> {
+    async findByOwnerId(ownerId?: string, isActive?: boolean): Promise<OwnerPayment[]> {
+        const whereClause: any = { owner_id: ownerId };
+        
+        if (isActive !== undefined) {
+            whereClause.is_active = isActive;
+        }
+
         return this.ownerPaymentRepository.find({
-            where: { owner_id: ownerId },
+            where: whereClause,
             relations: ['owner']
         });
     }

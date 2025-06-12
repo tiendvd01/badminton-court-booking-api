@@ -57,9 +57,9 @@ export class CreateBookingDto {
     customer_info: CustomerInfoDto;
 
     @ApiProperty({ description: 'Booking date', example: '2023-01-01' })
-    @IsDate()
+    @IsString()
     @IsNotEmpty()
-    booking_date: Date;
+    booking_date: string;
 
     @ApiProperty({ description: 'Note', example: 'Note' })
     @IsString()

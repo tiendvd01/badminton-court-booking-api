@@ -20,6 +20,9 @@ export class Booking {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({ nullable: false })
+    booking_code: string;
+
     @Column({ nullable: true })
     customer_id?: number;
 
@@ -58,6 +61,6 @@ export class Booking {
     @JoinColumn({ name: "customer_id" })
     customer?: User;
 
-    @Column()
-    payment_image: string;
+    @Column({ nullable: true })
+    payment_image?: string;
 } 

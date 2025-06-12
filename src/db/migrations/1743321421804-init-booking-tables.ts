@@ -20,18 +20,18 @@ export class InitBookingTables1743321421804 implements MigrationInterface {
             isNullable: true
           },
           {
-            name: 'court_id',
-            type: 'int',
-            isNullable: false,
-          },
-          {
             name: 'booking_date',
             type: 'date',
             isNullable: false,
           },
           {
+            name: "customer_info",
+            type: "json",
+            isNullable: true,
+          },
+          {
             name: 'slots',
-            type: 'jsonb',
+            type: 'json',
             isNullable: false,
           },
           {
@@ -43,66 +43,13 @@ export class InitBookingTables1743321421804 implements MigrationInterface {
           },
           {
             name: 'status',
-            type: 'enum',
-            enum: ['pending', 'completed', 'cancelled', 'confirmed'],
+            type: 'varchar',
             default: "'pending'",
             isNullable: false,
           },
           {
             name: 'note',
             type: 'text',
-            isNullable: true,
-          },
-          {
-            name: 'created_at',
-            type: 'timestamp',
-            default: 'CURRENT_TIMESTAMP',
-          },
-          {
-            name: 'updated_at',
-            type: 'timestamp',
-            default: 'CURRENT_TIMESTAMP',
-            onUpdate: 'CURRENT_TIMESTAMP',
-          },
-        ],
-      }),
-      true,
-    );
-
-    // Create payments table
-    await queryRunner.createTable(
-      new Table({
-        name: 'payments',
-        columns: [
-          {
-            name: 'id',
-            type: 'int',
-            isPrimary: true,
-            isGenerated: true,
-            generationStrategy: 'increment',
-          },
-          {
-            name: 'booking_id',
-            type: 'int',
-            isNullable: false,
-          },
-          {
-            name: 'amount',
-            type: 'decimal',
-            precision: 10,
-            scale: 2,
-            isNullable: false,
-          },
-          {
-            name: 'status',
-            type: 'enum',
-            enum: ['pending', 'completed', 'failed'],
-            default: "'pending'",
-            isNullable: false,
-          },
-          {
-            name: 'payment_image',
-            type: 'varchar',
             isNullable: true,
           },
           {
@@ -128,17 +75,6 @@ export class InitBookingTables1743321421804 implements MigrationInterface {
         columnNames: ['customer_id'],
         referencedColumnNames: ['id'],
         referencedTableName: 'users',
-        onDelete: 'CASCADE',
-      }),
-    );
-
-    // Add foreign key constraint for payments
-    await queryRunner.createForeignKey(
-      'payments',
-      new TableForeignKey({
-        columnNames: ['booking_id'],
-        referencedColumnNames: ['id'],
-        referencedTableName: 'bookings',
         onDelete: 'CASCADE',
       }),
     );

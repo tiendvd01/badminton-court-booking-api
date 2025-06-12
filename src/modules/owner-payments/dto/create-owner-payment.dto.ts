@@ -21,11 +21,6 @@ export class CreateOwnerPaymentDto {
   @ApiProperty({ description: 'Bank information', type: 'object' })
   bank_info: BankInfo;
 
-  @ApiProperty({ description: 'QR code image URL' })
-  @IsString()
-  @IsNotEmpty()
-  qr_image: string;
-
   @ApiPropertyOptional({ description: 'Owner ID' })
   @IsString()
   @IsOptional()
