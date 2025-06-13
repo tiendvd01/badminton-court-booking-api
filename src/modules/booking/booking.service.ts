@@ -4,11 +4,13 @@ import { Booking } from './entity/booking.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BookingStatus } from './entity/booking.entity';
 import { NotificationsGateway } from 'common/websocket/NotificationsGateway';
-import { NotificationService } from '@modules/notification/notification.service';
-import { CreateBookingDto } from './dto/create-booking.dto';
+import { CreateBookingDto, Slot } from './dto/create-booking.dto';
 import { CourtService } from '@modules/court/court.service';
 import { PriceTableService } from '@modules/price-table/price-table.service';
 import { generateUniqueCode } from 'utils';
+import { NotificationService } from '@modules/notification/notification.service';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class BookingService {
@@ -18,10 +20,12 @@ export class BookingService {
     private courtService: CourtService,
     private priceTableService: PriceTableService,
     private notificationsGateway: NotificationsGateway,
-  ) {}
+    private notificationService: NotificationService,
+    @InjectQueue('cancel-pending-booking')
+    private cancelPendingBookingQueue: Queue,
+  ) { }
 
   async createBooking(bookingData: CreateBookingDto): Promise<Booking> {
-
     let totalPrice = 0;
     for (const slot of bookingData.slots) {
       const court = await this.courtService.findCourtById(slot.courtId);
@@ -33,26 +37,26 @@ export class BookingService {
       // Calculate duration in hours
       const startDate = new Date();
       startDate.setHours(startHours, startMinutes, 0, 0);
-      
+
       const endDate = new Date();
       endDate.setHours(endHours, endMinutes, 0, 0);
-      
+
       const durationHours = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
 
       // Find matching price for the time slot
       const price = priceTable.prices.find((item) => {
         const [itemStartHours, itemStartMinutes] = item.start_time.split(':').map(Number);
         const [itemEndHours, itemEndMinutes] = item.end_time.split(':').map(Number);
-        
+
         const priceStart = new Date().setHours(itemStartHours, itemStartMinutes);
         const priceEnd = new Date().setHours(itemEndHours, itemEndMinutes);
         const slotStart = new Date().setHours(startHours, startMinutes);
         const slotEnd = new Date().setHours(endHours, endMinutes);
-        
+
         // Check if the booking slot is within the price time range
         return slotStart >= priceStart && slotEnd <= priceEnd;
       });
-      
+
       // Calculate price for this slot (price per hour * duration)
       totalPrice += (price?.price || 0) * durationHours;
     }
@@ -70,24 +74,39 @@ export class BookingService {
       status: BookingStatus.PENDING,
       booking_code: generateUniqueCode(),
     });
-    
+
     const savedBooking = await this.bookingRepository.save(booking);
 
+    this.cancelPendingBookingQueue.add('cancel-pending-booking', {
+      bookingId: savedBooking.id,
+    });
+ 
+    return savedBooking;
+  }
+
+  async customerConfirmBooking(id: number, paymentImageUrl: string) {
+    const booking = await this.findBookingById(id);
+    booking.status = BookingStatus.CONFIRMED;
+    booking.payment_image = paymentImageUrl;
+    const confirmedBooking = await this.bookingRepository.save(booking);
+
     // Send notification to owner
-    if (booking.slots[0].court_id) {
-      const court = await this.courtService.findCourtById(booking.slots[0].court_id);
+    if (confirmedBooking.slots[0].court_id) {
+      const court = await this.courtService.findCourtById(confirmedBooking.slots[0].court_id);
       this.notificationsGateway.sendToUser(
         'new-booking',
         court.location.owner_id.toString(),
         {
-          message: 'A new booking has been created for your court',
-          booking: savedBooking,
+          booking: confirmedBooking,
         },
       );
+      this.notificationService.createNotification('new-booking', court.location.owner_id, {
+        booking: confirmedBooking,
+      });
     }
 
-    return savedBooking;
-  }
+    return confirmedBooking;
+  } 
 
   async findAllBookings(filters?: {
     customerName?: string;

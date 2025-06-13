@@ -1,12 +1,15 @@
 // notifications.gateway.ts
+import { UseGuards } from '@nestjs/common';
 import {
   WebSocketGateway,
-  SubscribeMessage,
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   WebSocketServer,
+  SubscribeMessage,
+  ConnectedSocket,
+  MessageBody,
 } from '@nestjs/websockets';
+import { WsJwtGuard } from 'common/guards/ws-jwt.guard';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
@@ -18,6 +21,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
   @WebSocketServer()
   server: Server;
 
+  @UseGuards(WsJwtGuard)
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
   }
@@ -28,6 +32,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
 
   // Optional: send to specific user/room
   sendToUser(eventName: string, userId: string, data: any) {
-    this.server.to(userId).emit(eventName, data);
+    console.log(`Sending event ${eventName} to user ${userId}`);
+    this.server.emit(`${userId}_${eventName}`, data);
   }
 }

@@ -10,11 +10,19 @@ import { OwnerPaymentModule } from './modules/owner-payments/owner-payment.modul
 import { UploadModule } from '@modules/upload/upload.module';
 import { PriceTableModule } from '@modules/price-table/price-table.module';
 import { NotificationModule } from '@modules/notification/notification.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot(typeOrmConfig),
+    BullModule.forRoot({
+      redis: {
+        host: "redis-19485.c292.ap-southeast-1-1.ec2.redns.redis-cloud.com",
+        port: 19485,
+        password: "m3hP9zI0zkbvqVhY2efNCjoX7iD7tgLo",
+      },
+    }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

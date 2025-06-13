@@ -32,9 +32,13 @@ export class BookingController {
   ) {}
 
   @Post()
-  @ApiBearerAuth()
-  async createBooking(@Body() data: CreateBookingDto) {
+  async createDraftBooking(@Body() data: CreateBookingDto) {
     return this.bookingService.createBooking(data);
+  }
+
+  @Post()
+  async customerConfirmBooking(@Body() data: { id: number; paymentImageUrl: string }) {
+    return this.bookingService.customerConfirmBooking(data.id, data.paymentImageUrl);
   }
 
   @Get()
