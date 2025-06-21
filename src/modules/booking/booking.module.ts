@@ -8,6 +8,7 @@ import { NotificationsGateway } from 'common/websocket/NotificationsGateway';
 import { NotificationModule } from '@modules/notification/notification.module';
 import { PriceTableModule } from '@modules/price-table/price-table.module';
 import { BullModule } from '@nestjs/bull';
+import { MyQueueProcessor } from './queue/booking.processor';
 
 @Module({
   imports: [
@@ -20,7 +21,11 @@ import { BullModule } from '@nestjs/bull';
     PriceTableModule
   ],
   controllers: [BookingController],
-  providers: [BookingService, NotificationsGateway],
+  providers: [
+    BookingService, 
+    NotificationsGateway,
+    MyQueueProcessor, // Add the queue processor to providers
+  ],
   exports: [BookingService],
 })
 export class BookingModule { }

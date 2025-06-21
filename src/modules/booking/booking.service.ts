@@ -77,9 +77,19 @@ export class BookingService {
 
     const savedBooking = await this.bookingRepository.save(booking);
 
-    this.cancelPendingBookingQueue.add('cancel-pending-booking', {
-      bookingId: savedBooking.id,
-    });
+    try {
+      const court = await this.courtService.findCourtById(savedBooking.slots[0].court_id);
+      const job = await this.cancelPendingBookingQueue.add('cancel-pending-booking', {
+        bookingId: savedBooking.id,
+        owner_id: court.location.owner_id,
+      }, {
+        attempts: 1,
+        delay: 5 * 60 * 1000,
+      });
+      console.log('Job added to queue:', job.id);
+    } catch (error) {
+      console.error('Failed to add job to queue:', error);
+    }
  
     return savedBooking;
   }

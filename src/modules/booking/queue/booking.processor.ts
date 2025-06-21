@@ -13,17 +13,17 @@ export class MyQueueProcessor {
   ) { }
   @Process('cancel-pending-booking')
   async handleJob(job: Job) {
+    try {
     const booking = await this.bookingService.findBookingById(job.data.bookingId);
     if (booking.status === BookingStatus.PENDING) {
       await this.bookingService.updateBookingStatus(job.data.bookingId, BookingStatus.CANCELLED);
       console.log("Booking cancelled: ", booking.id);
-      this.notificationGateway.sendToUser(
-        'booking-cancelled',
-        booking.customer_id.toString(),
-        {
-          booking,
-        },
-      );
+    } else {
+      console.log('Booking not in PENDING status, skipping:', booking.id);
+    }
+    } catch (error) {
+      console.error('Error processing job:', error);
+      throw error; // This will trigger a retry if attempts > 1
     }
   }
 }
