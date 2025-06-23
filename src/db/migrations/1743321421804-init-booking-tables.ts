@@ -20,6 +20,11 @@ export class InitBookingTables1743321421804 implements MigrationInterface {
             isNullable: true
           },
           {
+            name: 'location_id',
+            type: 'int',
+            isNullable: false
+          },
+          {
             name: 'booking_date',
             type: 'date',
             isNullable: false,

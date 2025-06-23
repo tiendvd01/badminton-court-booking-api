@@ -46,7 +46,7 @@ export class CreateBookingDto {
     @ApiProperty({ description: 'ID of the location', example: 1 })
     @IsNumber()
     @IsNotEmpty()
-    locationId: number;
+    location_id: number;
 
     @ApiProperty({ 
         description: 'Customer information',

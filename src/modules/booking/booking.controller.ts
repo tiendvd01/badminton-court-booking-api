@@ -45,12 +45,14 @@ export class BookingController {
   async findAllBookings(
     @Query('customerName') customerName?: string,
     @Query('bookingDate') bookingDate?: string,
-    @Query('status') status?: string,
+    @Query('status') status?: string[],
+    @Query('locationId') locationId?: number,
   ) {
     return this.bookingService.findAllBookings({
       customerName,
       bookingDate,
       status,
+      locationId,
     });
   }
 

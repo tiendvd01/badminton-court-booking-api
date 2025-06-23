@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Like, Raw, Repository } from 'typeorm';
+import { In, Like, Raw, Repository } from 'typeorm';
 import { Booking } from './entity/booking.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BookingStatus } from './entity/booking.entity';
@@ -73,6 +73,7 @@ export class BookingService {
       note: bookingData.note,
       status: BookingStatus.PENDING,
       booking_code: generateUniqueCode(),
+      location_id: bookingData.location_id,
     });
 
     const savedBooking = await this.bookingRepository.save(booking);
@@ -121,13 +122,14 @@ export class BookingService {
   async findAllBookings(filters?: {
     customerName?: string;
     bookingDate?: string;
-    status?: string;
+    status?: string[];
+    locationId?: number;
   }): Promise<Booking[]> {
     const where: any = {};
 
     if (filters) {
       if (filters.customerName) {
-        where.customer_name = Like(`%${filters.customerName}%`);
+        where.customer_info.name = Like(`%${filters.customerName}%`);
       }
 
       if (filters.bookingDate) {
@@ -137,7 +139,11 @@ export class BookingService {
       }
 
       if (filters.status) {
-        where.status = filters.status;
+        where.status = In(filters.status);
+      }
+
+      if (filters.locationId) {
+        where.location_id = filters.locationId;
       }
     }
 

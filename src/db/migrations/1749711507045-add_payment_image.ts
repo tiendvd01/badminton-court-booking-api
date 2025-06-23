@@ -15,3 +15,4 @@ export class AddPaymentImage1749711507045 implements MigrationInterface {
     }
 
 }
+``

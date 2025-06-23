@@ -26,6 +26,9 @@ export class Booking {
     @Column({ nullable: true })
     customer_id?: number;
 
+    @Column({ nullable: false })
+    location_id: number;
+
     @Column({ type: "json" })
     customer_info?: {
         name: string;

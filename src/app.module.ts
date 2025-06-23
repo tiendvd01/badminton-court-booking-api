@@ -18,9 +18,9 @@ import { BullModule } from '@nestjs/bull';
     TypeOrmModule.forRoot(typeOrmConfig),
     BullModule.forRoot({
       redis: {
-        host: "redis-19485.c292.ap-southeast-1-1.ec2.redns.redis-cloud.com",
-        port: 19485,
-        password: "m3hP9zI0zkbvqVhY2efNCjoX7iD7tgLo",
+        host: process.env.REDIS_HOST,
+        port: Number(process.env.REDIS_PORT),
+        password: process.env.REDIS_PASSWORD,
       },
     }),
     JwtModule.registerAsync({
