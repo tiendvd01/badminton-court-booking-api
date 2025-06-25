@@ -16,8 +16,6 @@ export class UploadController {
   constructor() {}
 
   @Post('image')
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
   @UseInterceptors(ImageFileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload a single image' })

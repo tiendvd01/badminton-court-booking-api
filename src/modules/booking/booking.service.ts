@@ -133,7 +133,7 @@ export class BookingService {
       }
 
       if (filters.bookingDate) {
-        where.start_time = Raw((alias) => `DATE(${alias}) = :date`, {
+        where.booking_date = Raw((alias) => `DATE(${alias}) = :date`, {
           date: filters.bookingDate,
         });
       }

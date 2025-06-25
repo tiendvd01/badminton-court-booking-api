@@ -36,9 +36,9 @@ export class BookingController {
     return this.bookingService.createBooking(data);
   }
 
-  @Post()
-  async customerConfirmBooking(@Body() data: { id: number; paymentImageUrl: string }) {
-    return this.bookingService.customerConfirmBooking(data.id, data.paymentImageUrl);
+  @Post('/confirm')
+  async customerConfirmBooking(@Body() data: { bookingId: number, paymentImageUrl: string }) {
+    return this.bookingService.customerConfirmBooking(data.bookingId, data.paymentImageUrl);
   }
 
   @Get()
