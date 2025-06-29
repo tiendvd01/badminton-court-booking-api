@@ -27,15 +27,6 @@ export class NotificationService {
     
     const savedNotification = await this.notificationRepository.save(notification);
     
-    // Send real-time notification via WebSocket
-    this.notificationsGateway.sendToUser(
-      type,
-      userId.toString(),
-      {
-        notification: savedNotification,
-      },
-    );
-    
     return savedNotification;
   }
 

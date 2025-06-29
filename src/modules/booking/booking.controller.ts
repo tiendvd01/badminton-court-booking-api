@@ -1,3 +1,4 @@
+import { ApiQuery } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -42,17 +43,24 @@ export class BookingController {
   }
 
   @Get()
+  @ApiQuery({ name: 'customerName', required: false })
+  @ApiQuery({ name: 'bookingDate', required: false })
+  @ApiQuery({ name: 'status', required: false, type: [String] })
+  @ApiQuery({ name: 'locationId', required: false, type: Number })
+  @ApiQuery({ name: 'customerId', required: false, type: Number })
   async findAllBookings(
     @Query('customerName') customerName?: string,
     @Query('bookingDate') bookingDate?: string,
     @Query('status') status?: string[],
     @Query('locationId') locationId?: number,
+    @Query('customerId') customerId?: number,
   ) {
     return this.bookingService.findAllBookings({
       customerName,
       bookingDate,
       status,
       locationId,
+      customerId,
     });
   }
 

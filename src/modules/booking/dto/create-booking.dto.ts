@@ -65,4 +65,9 @@ export class CreateBookingDto {
     @IsString()
     @IsOptional()
     note?: string;
+
+    @ApiProperty({ description: 'Customer ID', example: 1 })
+    @IsNumber()
+    @IsOptional()
+    customer_id?: number;
 }

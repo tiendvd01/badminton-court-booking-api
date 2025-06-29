@@ -74,6 +74,7 @@ export class BookingService {
       status: BookingStatus.PENDING,
       booking_code: generateUniqueCode(),
       location_id: bookingData.location_id,
+      customer_id: bookingData.customer_id,
     });
 
     const savedBooking = await this.bookingRepository.save(booking);
@@ -124,6 +125,7 @@ export class BookingService {
     bookingDate?: string;
     status?: string[];
     locationId?: number;
+    customerId?: number;
   }): Promise<Booking[]> {
     const where: any = {};
 
@@ -133,8 +135,10 @@ export class BookingService {
       }
 
       if (filters.bookingDate) {
+        // Extract just the date part (YYYY-MM-DD) from ISO string if needed
+        const dateOnly = new Date(filters.bookingDate).toISOString().split('T')[0];
         where.booking_date = Raw((alias) => `DATE(${alias}) = :date`, {
-          date: filters.bookingDate,
+          date: dateOnly,
         });
       }
 
@@ -144,6 +148,10 @@ export class BookingService {
 
       if (filters.locationId) {
         where.location_id = filters.locationId;
+      }
+
+      if (filters.customerId) {
+        where.customer_id = filters.customerId;
       }
     }
 

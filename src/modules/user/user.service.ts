@@ -37,10 +37,12 @@ export class UserService {
     return this.userRepository.save(newOwner);
   }
 
-  createCustomer(data: CreateUserDto) {
+  async createCustomer(data: CreateUserDto) {
+    const hashedPassword = await this.hashPassword(data.password);
     const newUser = this.userRepository.create({
       ...data,
       role: 'customer',
+      password: hashedPassword,
     });
     return this.userRepository.save(newUser);
   }
