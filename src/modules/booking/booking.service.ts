@@ -79,6 +79,8 @@ export class BookingService {
 
     const savedBooking = await this.bookingRepository.save(booking);
 
+    this.notificationsGateway.broadcast('revalidate');
+
     try {
       const court = await this.courtService.findCourtById(savedBooking.slots[0].court_id);
       const job = await this.cancelPendingBookingQueue.add('cancel-pending-booking', {
@@ -115,6 +117,7 @@ export class BookingService {
       this.notificationService.createNotification('new-booking', court.location.owner_id, {
         booking: confirmedBooking,
       });
+      this.notificationsGateway.broadcast('revalidate');
     }
 
     return confirmedBooking;

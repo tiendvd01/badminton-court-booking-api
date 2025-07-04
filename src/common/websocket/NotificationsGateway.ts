@@ -35,4 +35,8 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     console.log(`Sending event ${eventName} to user ${userId}`);
     this.server.emit(`${userId}_${eventName}`, data);
   }
+
+  broadcast(eventName: string, data?: any) {
+    this.server.emit(eventName, data);
+  }
 }

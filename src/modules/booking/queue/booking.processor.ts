@@ -18,6 +18,7 @@ export class MyQueueProcessor {
     if (booking.status === BookingStatus.PENDING) {
       await this.bookingService.updateBookingStatus(job.data.bookingId, BookingStatus.CANCELLED);
       console.log("Booking cancelled: ", booking.id);
+      this.notificationGateway.broadcast('revalidate');
     } else {
       console.log('Booking not in PENDING status, skipping:', booking.id);
     }
